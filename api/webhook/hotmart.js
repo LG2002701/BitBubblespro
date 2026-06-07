@@ -7,11 +7,7 @@ const sql = neon(process.env.DATABASE_URL);
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
-  const secret = req.headers['x-hotmart-webhook-token'];
-  if (secret !== process.env.HOTMART_SECRET) {
-    return res.status(401).json({ error: 'Token invalido' });
-  }
-
+  
   const { data } = req.body;
   const email = data?.buyer?.email;
   if (!email) return res.status(400).json({ error: 'Email nao encontrado' });
