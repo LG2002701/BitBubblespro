@@ -34,8 +34,8 @@ export default async function handler(req, res) {
     `);
   }
 
-  // Serve o HTML do terminal
-  const html = fs.readFileSync(path.join(process.cwd(), 'public', 'terminal.html'), 'utf-8');
+  // Serve o HTML do terminal (agora em private/, fora do alcance público)
+  const html = fs.readFileSync(path.join(process.cwd(), 'private', 'terminal.html'), 'utf-8');
   res.setHeader('Content-Type', 'text/html');
   res.status(200).send(html);
 }
