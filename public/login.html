@@ -51,7 +51,7 @@
           return;
         }
         localStorage.setItem('bb_token', data.token);
-        window.location.href = '/public/terminal.html?token=' + data.token;
+        window.location.href = '/api/terminal?token=' + data.token;
       } catch(e) {
         errEl.textContent = 'Erro de conexao: ' + e.message;
         errEl.style.display = 'block';
