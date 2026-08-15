@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken');
 
 const sql = neon(process.env.DATABASE_URL);
 
+const MAX_ATTEMPTS = 5;
+
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
@@ -13,7 +15,8 @@ module.exports = async function handler(req, res) {
   }
 
   const users = await sql`
-    SELECT u.id, u.email, u.password_hash, l.status, l.expires_at
+    SELECT u.id, u.email, u.password_hash, u.failed_attempts, u.locked_until,
+           l.status, l.expires_at
     FROM users u
     JOIN licenses l ON l.user_id = u.id
     WHERE u.email = ${email}
@@ -24,8 +27,32 @@ module.exports = async function handler(req, res) {
   const user = users[0];
   if (!user) return res.status(401).json({ error: 'Email ou senha incorretos' });
 
+  // Bloqueio temporário por excesso de tentativas erradas
+  if (user.locked_until && new Date(user.locked_until) > new Date()) {
+    const minutesLeft = Math.ceil((new Date(user.locked_until) - new Date()) / 60000);
+    return res.status(429).json({ error: `Muitas tentativas. Tente novamente em ${minutesLeft} min.` });
+  }
+
   const ok = await bcrypt.compare(password, user.password_hash);
-  if (!ok) return res.status(401).json({ error: 'Email ou senha incorretos' });
+
+  if (!ok) {
+    const attempts = (user.failed_attempts || 0) + 1;
+
+    if (attempts >= MAX_ATTEMPTS) {
+      await sql`
+        UPDATE users
+        SET failed_attempts = ${attempts}, locked_until = NOW() + INTERVAL '15 minutes'
+        WHERE id = ${user.id}
+      `;
+    } else {
+      await sql`UPDATE users SET failed_attempts = ${attempts} WHERE id = ${user.id}`;
+    }
+
+    return res.status(401).json({ error: 'Email ou senha incorretos' });
+  }
+
+  // Login certo — reseta o contador de tentativas
+  await sql`UPDATE users SET failed_attempts = 0, locked_until = NULL WHERE id = ${user.id}`;
 
   if (user.status !== 'active') return res.status(403).json({ error: 'Licenca inativa' });
   if (new Date(user.expires_at) < new Date()) return res.status(403).json({ error: 'Licenca expirada' });
@@ -33,7 +60,7 @@ module.exports = async function handler(req, res) {
   const token = jwt.sign(
     { id: user.id, email: user.email },
     process.env.JWT_SECRET,
-    { expiresIn: '7d' }
+    { expiresIn: '30d' }
   );
 
   res.status(200).json({ token });
