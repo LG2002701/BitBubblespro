@@ -28,7 +28,8 @@ module.exports = async function handler(req, res) {
 
   const event = req.body?.event;
   const { data } = req.body;
-  const email = data?.buyer?.email;
+  // Eventos de compra usam data.buyer.email; eventos de assinatura usam data.subscriber.email
+  const email = data?.buyer?.email || data?.subscriber?.email;
   const transaction = data?.purchase?.transaction;
 
   // 2) Evento de liberação de acesso
