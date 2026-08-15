@@ -31,10 +31,10 @@ module.exports = async function handler(req, res) {
   const email = data?.buyer?.email;
   const transaction = data?.purchase?.transaction;
 
-  if (!email) return res.status(400).json({ error: 'Email nao encontrado' });
-
   // 2) Evento de liberação de acesso
   if (GRANT_EVENTS.includes(event)) {
+    if (!email) return res.status(400).json({ error: 'Email nao encontrado' });
+
     const senha = Math.random().toString(36).slice(-8).toUpperCase();
     const hash = await bcrypt.hash(senha, 10);
 
@@ -68,6 +68,8 @@ module.exports = async function handler(req, res) {
 
   // 3) Evento de revogação de acesso
   if (REVOKE_EVENTS.includes(event)) {
+    if (!email) return res.status(400).json({ error: 'Email nao encontrado' });
+
     await sql`
       UPDATE licenses
       SET status = 'inactive'
@@ -76,6 +78,8 @@ module.exports = async function handler(req, res) {
     return res.status(200).json({ ok: true, action: 'revoked' });
   }
 
-  // 4) Evento que não tratamos ainda — só confirma recebimento, não faz nada
+  // 4) Qualquer outro evento (primeiro acesso, troca de plano, dados logísticos,
+  // abandono de carrinho, etc.) — não precisamos agir, só confirmar recebimento
+  // com 200 pra Hotmart não ficar retentando.
   return res.status(200).json({ ok: true, action: 'ignored', event });
 }
