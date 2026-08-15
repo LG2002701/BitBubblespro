@@ -20,8 +20,9 @@ module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
   // 1) Valida que a chamada veio mesmo da Hotmart
-  const hottok = req.body?.hottok || req.headers['x-hotmart-hottok'];
-  if (!hottok || hottok !== process.env.HOTMART_HOTTOK) {
+  const hottok = (req.body?.hottok || req.headers['x-hotmart-hottok'] || '').toString().trim();
+  const expected = (process.env.HOTMART_HOTTOK || '').toString().trim();
+  if (!hottok || !expected || hottok !== expected) {
     return res.status(401).json({ error: 'Hottok inválido' });
   }
 
