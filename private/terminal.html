@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>BitBubbles PRO — Terminal Quant v3</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@400;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg:#040b12; --bg-card:#060e18; --bg-panel:#091520;
@@ -435,9 +435,117 @@
       .dbody{padding:10px 14px;gap:6px}
       .dfoot{padding:10px 14px 16px}
     }
+    /* ══ PAINEL — Market Table / Alerts Table / Quick News ══ */
+    .painel-layout{display:block}
+
+    .painel-news{background:var(--bg-card);border:1px solid var(--border);border-radius:11px;padding:12px;
+      max-height:calc(100vh - 90px);overflow-y:auto;display:flex;flex-direction:column;gap:8px;position:sticky;top:70px}
+    .pn-item{background:var(--bg-panel);border:1px solid var(--border);border-radius:8px;padding:9px 10px;cursor:pointer;transition:border-color .15s}
+    .pn-item:hover{border-color:var(--border-hi)}
+    .pn-head{font-size:12px;font-weight:700;color:var(--text);line-height:1.3;margin-bottom:5px}
+    .pn-meta{display:flex;justify-content:space-between;align-items:center;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted)}
+    .pn-src{text-transform:uppercase;letter-spacing:.5px}
+    .pn-pill{font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;font-family:'JetBrains Mono',monospace}
+    .pn-pill.bullish{background:rgba(0,230,118,.12);color:var(--buy)}
+    .pn-pill.bearish{background:rgba(255,49,88,.12);color:var(--sell)}
+    .pn-pill.warning{background:rgba(255,145,0,.14);color:var(--warm)}
+    .pn-pill.neutral{background:rgba(50,85,112,.25);color:var(--muted)}
+    .pn-empty{color:var(--muted);font-size:11px;text-align:center;padding:20px 0;font-family:'JetBrains Mono',monospace}
+
+    .painel-main{display:flex;flex-direction:column;gap:14px}
+    .panel-box{background:var(--bg-card);border:1px solid var(--border);border-radius:11px;padding:14px;overflow-x:auto}
+    .panel-box-title{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--muted);
+      text-transform:uppercase;margin-bottom:10px}
+
+    .painel-alerts-scroll{max-height:300px;overflow-y:auto}
+    .painel-alerts-scroll::-webkit-scrollbar{width:8px}
+    .painel-alerts-scroll::-webkit-scrollbar-thumb{background:var(--border-hi);border-radius:4px}
+    .painel-alerts-scroll thead th{position:sticky;top:0;background:var(--bg-card);z-index:1}
+
+    .data-table{width:100%;border-collapse:collapse;font-family:'JetBrains Mono',monospace;font-size:12px;white-space:nowrap}
+    .data-table th{text-align:left;color:var(--muted);font-size:10px;letter-spacing:1.2px;text-transform:uppercase;
+      padding:6px 10px;border-bottom:1px solid var(--border);font-weight:600}
+    .data-table td{padding:8px 10px;border-bottom:1px solid var(--border);color:var(--text)}
+    .data-table tbody tr:hover{background:rgba(255,255,255,.02)}
+    .data-table tbody tr:last-child td{border-bottom:none}
+
+    .mt-instr{display:flex;align-items:center;gap:8px;font-weight:700}
+    .mt-ic-wrap{width:20px;height:20px;flex-shrink:0;position:relative;display:inline-block}
+    .mt-ic-img{width:20px;height:20px;border-radius:50%;object-fit:cover;display:block;background:var(--bg-panel)}
+    .mt-ic{width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));
+      position:absolute;top:0;left:0;
+      display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#04111c;flex-shrink:0}
+    .mt-pair{color:var(--muted);font-weight:400;font-size:10px}
+
+    .status-pill{font-size:10px;font-weight:700;padding:3px 9px;border-radius:5px;letter-spacing:.5px}
+    .status-pill.bullish{background:rgba(0,230,118,.12);color:var(--buy)}
+    .status-pill.bearish{background:rgba(255,49,88,.12);color:var(--sell)}
+    .status-pill.neutral{background:rgba(50,85,112,.25);color:var(--muted)}
+
+    .at-type{font-size:9px;font-weight:700;letter-spacing:.5px;color:var(--accent)}
+    .at-action{color:var(--muted);text-decoration:none}
+    .at-action:hover{color:var(--accent)}
+    .pm-empty-row td{color:var(--muted);text-align:center;padding:18px 0}
+
+    /* ═══ RISK DISCLAIMER MODAL ═══ */
+    #riskDisclaimerOverlay{position:fixed;inset:0;background:rgba(4,11,18,.92);backdrop-filter:blur(10px);
+      z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px}
+    .risk-modal{background:var(--bg-card);border:1px solid var(--border-hi);border-radius:14px;
+      max-width:480px;width:100%;padding:26px 26px 22px;box-shadow:0 20px 60px rgba(0,0,0,.5);
+      animation:comboIn .3s cubic-bezier(.22,1,.36,1)}
+    .risk-modal-icon{font-size:30px;margin-bottom:10px}
+    .risk-modal h2{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:#fff;margin-bottom:12px;letter-spacing:-.3px}
+    .risk-modal p{font-family:'Syne',sans-serif;font-size:13px;line-height:1.65;color:var(--text);margin-bottom:10px}
+    .risk-modal ul{margin:0 0 14px 18px;padding:0}
+    .risk-modal li{font-family:'Syne',sans-serif;font-size:12.5px;line-height:1.6;color:var(--muted);margin-bottom:5px}
+    .risk-modal li b{color:var(--text)}
+    .risk-modal-check{display:flex;align-items:flex-start;gap:8px;margin:16px 0 18px;
+      font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);line-height:1.5;cursor:pointer;user-select:none}
+    .risk-modal-check input{margin-top:2px;accent-color:var(--accent);cursor:pointer;flex-shrink:0}
+    .risk-modal-btn{width:100%;background:linear-gradient(135deg,#00c8ff,#7c3aed);color:#fff;border:none;
+      padding:12px;border-radius:9px;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;
+      cursor:pointer;transition:opacity .2s;opacity:.4;pointer-events:none}
+    .risk-modal-btn.enabled{opacity:1;pointer-events:auto}
+    .risk-modal-btn.enabled:hover{filter:brightness(1.1)}
+    .risk-modal-footer{margin-top:12px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);
+      text-align:center;letter-spacing:.5px}
   </style>
 </head>
 <body>
+
+<div id="riskDisclaimerOverlay">
+  <div class="risk-modal">
+    <div class="risk-modal-icon">⚠️</div>
+    <h2>Aviso de Risco — Leia antes de continuar</h2>
+    <p>O BitBubbles é uma <b style="color:var(--text)">ferramenta de análise quantitativa e visualização de dados de mercado</b>, não uma recomendação de investimento, consultoria financeira ou promessa de lucro.</p>
+    <ul>
+      <li><b>Alto risco:</b> operações com criptoativos envolvem risco significativo de perda, incluindo perda total do capital investido.</li>
+      <li><b>Sem garantias:</b> scores, alertas e sinais exibidos são cálculos estatísticos sobre dados históricos/tempo real e podem estar incorretos, atrasados ou incompletos.</li>
+      <li><b>Decisão pessoal:</b> toda decisão de compra ou venda é de responsabilidade exclusiva do usuário.</li>
+      <li><b>Não somos consultoria:</b> nada aqui constitui aconselhamento financeiro, contábil, jurídico ou de investimento (CVM/análise regulada).</li>
+    </ul>
+    <label class="risk-modal-check">
+      <input type="checkbox" id="riskAckCheckbox" onchange="document.getElementById('riskAckBtn').classList.toggle('enabled', this.checked)">
+      Li e estou ciente dos riscos. Entendo que o BitBubbles não oferece recomendações de investimento e que sou o único responsável pelas minhas decisões financeiras.
+    </label>
+    <button class="risk-modal-btn" id="riskAckBtn" onclick="acceptRiskDisclaimer()">Entendi e aceito continuar</button>
+    <div class="risk-modal-footer">Este aviso só será exibido novamente se você limpar os dados do navegador.</div>
+  </div>
+</div>
+<script>
+  (function(){
+    try{
+      if(localStorage.getItem('bb_risk_ack') === '1'){
+        document.getElementById('riskDisclaimerOverlay')?.remove();
+      }
+    }catch(e){}
+  })();
+  function acceptRiskDisclaimer(){
+    try{ localStorage.setItem('bb_risk_ack','1'); }catch(e){}
+    const el = document.getElementById('riskDisclaimerOverlay');
+    if(el){ el.style.transition='opacity .25s'; el.style.opacity='0'; setTimeout(()=>el.remove(),250); }
+  }
+</script>
 
 <div class="navbar">
   <div class="brand">
@@ -448,7 +556,7 @@
             <stop offset="0%" stop-color="#00c8ff"/>
             <stop offset="100%" stop-color="#7c3aed"/>
           </linearGradient>
-          <filter id="glow"><feGaussianBlur stdDeviation="1.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+          <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="0.9" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
         </defs>
         <circle cx="17" cy="17" r="15.5" stroke="url(#lg1)" stroke-width="1.2" opacity="0.5"/>
         <circle cx="17" cy="17" r="9" fill="url(#lg1)" opacity="0.15"/>
@@ -466,50 +574,72 @@
   <div style="display:flex;align-items:center;gap:13px">
     <div class="live">LIVE</div>
     <div class="nav-tabs">
-      <button class="tab-btn active" onclick="switchTab('radar',this)">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M6.3 6.3a8 8 0 1 0 11.4 0"/></svg>
-        Radar de Fluxo
+      <button class="tab-btn active" onclick="switchTab('painel',this)">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+        Painel
+      </button>
+      <button class="tab-btn" onclick="switchTab('bitnews',this)" style="display:none">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8M15 18h-5M10 6h8v4h-8z"/></svg>
+        Notícias
       </button>
     </div>
 </div>
 </div>
 
-<!-- RADAR -->
-<div id="tab-radar" class="tab-content active">
+<!-- PAINEL -->
+<!-- Ghost elements: motor JS referencia esses IDs internamente.
+     Ficam ocultos — só existem pra o engine não quebrar na inicialização. -->
+<div style="display:none" aria-hidden="true">
+  <div id="coinsGrid"></div>
+  <div id="alertsList"><div id="emptyAlerts"></div></div>
+  <div id="comboPanel"><div id="comboList"><div id="noCombo"></div></div></div>
+  <div id="discOverlay"></div>
+  <span id="alertCount">0</span>
+  <span id="hotCount">0</span>
+  <span id="warmCount">0</span>
+  <span id="zAnomalyCount">0</span>
+  <span id="ofiCount">0</span>
+  <span id="btcBiasLabel"></span>
+  <span id="btcBiasStat"></span>
+  <span id="smSummary"></span>
+</div>
+
+<div id="tab-painel" class="tab-content active">
   <div class="topbar">
     <div class="stat">Ativos <b>20</b></div>
-    <div class="stat">Alertas <b id="alertCount" style="color:var(--accent)">0</b></div>
-    <div class="stat">HOT <b id="hotCount" style="color:var(--hot)">0</b></div>
-    <div class="stat">WARM <b id="warmCount" style="color:var(--warm)">0</b></div>
-    <div class="stat">Z-Anomalias <b id="zAnomalyCount" style="color:var(--sell)">0</b></div>
-    <div class="stat">OFI Extremo <b id="ofiCount" style="color:var(--accent2)">0</b></div>
-    <div class="stat">Z-Win <b style="color:var(--buy)">1m·5m·15m</b></div>
-    <div class="stat">Score <b style="color:var(--buy)">v3</b></div>
-    <div class="stat" id="btcBiasStat" title="Viés atual do BTC — filtra altcoins contrárias">BTC Bias <b id="btcBiasLabel" style="color:var(--muted)">—</b></div>
-  </div>
-  <!-- COMBO ALERT PANEL -->
-  <div class="combo-panel" id="comboPanel">
-    <div class="combo-title" style="color:#ffc832;letter-spacing:2px">⚡ SINAIS PRINCIPAIS</div>
-    <div class="combo-list" id="comboList">
-      <div class="no-combo" id="noCombo">Os sinais aparecem aqui</div>
-    </div>
+    <div class="stat">Sinais <b id="painelAlertCount" style="color:var(--accent)">0</b></div>
   </div>
 
-  <div class="radar-layout">
-    <div class="coins-grid" id="coinsGrid"></div>
-    <div class="alerts-sidebar">
-      <div class="sidebar-title">
-        <span>Feed de Sinais</span>
-        <button onclick="clearAlerts()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:10px;font-family:'JetBrains Mono',monospace">LIMPAR</button>
+  <div class="painel-layout">
+    <div class="painel-main">
+      <!-- ALERTS TABLE -->
+      <div class="panel-box">
+        <div class="panel-box-title">Alerts</div>
+        <div class="painel-alerts-scroll">
+        <table class="data-table">
+          <thead>
+            <tr><th>Type</th><th>Alert Description</th><th>Time</th><th>Status</th></tr>
+          </thead>
+          <tbody id="painelAlertsBody">
+            <tr class="pm-empty-row" id="painelAlertsEmpty"><td colspan="4">Aguardando sinais...</td></tr>
+          </tbody>
+        </table>
+        </div>
       </div>
-      <div class="alerts-list" id="alertsList">
-        <div class="empty-alerts" id="emptyAlerts">Aguardando sinais...</div>
+
+      <!-- MARKET COINS TABLE -->
+      <div class="panel-box">
+        <div class="panel-box-title">Market Coins</div>
+        <table class="data-table">
+          <thead>
+            <tr><th>Instrument</th><th>Price</th><th>Volume (5m)</th><th>Change</th><th>Price Graph</th><th>Action</th></tr>
+          </thead>
+          <tbody id="marketTableBody"></tbody>
+        </table>
       </div>
     </div>
   </div>
 </div>
-
-<!-- AI VISION -->
 <div id="tab-ai-vision" class="tab-content">
   <div class="ai-container">
     <div class="ai-left">
@@ -898,7 +1028,7 @@ function fireTriangulacaoPanel(sym, diff) {
   setTimeout(()=>playBeep(0x220,'sine',0.12,0.20),0xe0);
   setTimeout(()=>playBeep(0x200,'sine',0.10,0.18),0x160);
 }
-function connectWS(_0x273323){let _0x1a15a4=0x5dc;function _0x1c4b1f(){const _0x3985f6=a0_0x4352,_0xb1146f=new WebSocket(_0x3985f6(0x148)+_0x273323+_0x3985f6(0x272));_0xb1146f[_0x3985f6(0x1ce)]=()=>{const _0x34958c=_0x3985f6;_0x1a15a4=0x5dc,document['getElementById']('card-'+_0x273323)?.[_0x34958c(0x221)][_0x34958c(0x200)](_0x34958c(0x247));},_0xb1146f['onmessage']=_0x1e2640=>handleTrade(_0x273323,JSON['parse'](_0x1e2640['data'])),_0xb1146f['onclose']=()=>{const _0x9d3d13=_0x3985f6;document['getElementById']('card-'+_0x273323)?.[_0x9d3d13(0x221)][_0x9d3d13(0x234)](_0x9d3d13(0x247)),setTimeout(_0x1c4b1f,_0x1a15a4),_0x1a15a4=Math[_0x9d3d13(0x229)](_0x1a15a4*1.8,0x7530);},_0xb1146f[_0x3985f6(0x16e)]=()=>_0xb1146f[_0x3985f6(0x151)]();}_0x1c4b1f();}function handleTrade(_0x366b97,_0x1a0198){const _0x33fdb3=a0_0x48cd95,_0x4c7bfb=Number(_0x1a0198['p']),_0x470c24=Number(_0x1a0198['q']),_0xbaccf6=_0x4c7bfb*_0x470c24,_0x291255=_0x1a0198['m'],_0x4170fe=Date[_0x33fdb3(0x1ee)](),_0x41507b=coinState[_0x366b97],_0x4d8d60={};_0x4d8d60['time']=_0x4170fe,_0x4d8d60[_0x33fdb3(0x14e)]=_0x4c7bfb,_0x4d8d60[_0x33fdb3(0x222)]=_0xbaccf6,_0x41507b[_0x33fdb3(0x149)][_0x33fdb3(0x220)](_0x4d8d60);const _0x2b5fe1={};_0x2b5fe1['time']=_0x4170fe,_0x2b5fe1[_0x33fdb3(0x1f6)]=_0x470c24,_0x2b5fe1[_0x33fdb3(0x268)]=!_0x291255,_0x2b5fe1[_0x33fdb3(0x280)]=_0xbaccf6,_0x41507b[_0x33fdb3(0x1c9)]['push'](_0x2b5fe1);if(_0x4170fe-_0x41507b[_0x33fdb3(0x1d7)]>0x3e8){_0x41507b['sparkPrices'][_0x33fdb3(0x220)](_0x4c7bfb);if(_0x41507b['sparkPrices'][_0x33fdb3(0x248)]>0x3c)_0x41507b[_0x33fdb3(0x19a)][_0x33fdb3(0x1ab)]();_0x41507b['lastSparkTime']=_0x4170fe;}const _0x139018=_0x4170fe-0xdbba0,_0x2a4fa1=_0x4170fe-0x493e0,_0x2f3841=_0x4170fe-0xea60;_0x41507b[_0x33fdb3(0x149)]=_0x41507b['trades'][_0x33fdb3(0x1de)](_0x552e1a=>_0x552e1a[_0x33fdb3(0x17c)]>_0x139018),_0x41507b[_0x33fdb3(0x1c9)]=_0x41507b[_0x33fdb3(0x1c9)][_0x33fdb3(0x1de)](_0x2b22a7=>_0x2b22a7[_0x33fdb3(0x17c)]>_0x139018);if(_0x41507b['volumes'][_0x33fdb3(0x248)]<0x3c)return;const _0x1df728=_0x41507b['volumes'],_0x9856b5=_0x41507b[_0x33fdb3(0x1c9)]['filter'](_0x44bba0=>_0x44bba0[_0x33fdb3(0x17c)]>_0x2a4fa1),_0x1ce6d2=_0x41507b[_0x33fdb3(0x1c9)][_0x33fdb3(0x1de)](_0x2131dd=>_0x2131dd[_0x33fdb3(0x17c)]>_0x2f3841),_0x33bfab=multiWindowLogZ(_0x470c24,_0x1ce6d2,_0x9856b5[_0x33fdb3(0x248)]>0xa?_0x9856b5:_0x1df728,_0x1df728),_0x470dc9=(_0x9856b5[_0x33fdb3(0x248)]>0xa?_0x9856b5:_0x1df728)[_0x33fdb3(0x269)](_0x3d5bf8=>_0x3d5bf8[_0x33fdb3(0x280)]),_0x47513b=logZScore(_0xbaccf6,_0x470dc9),_0x454a45=_0x470dc9['map'](_0x1766d7=>Math[_0x33fdb3(0x199)](Math['max'](_0x1766d7,1e-10))),{mean:_0x38e339,std:_0x295894}=statsOf(_0x454a45),_0x27fe55=Math[_0x33fdb3(0x1ed)](_0x38e339+3.5*_0x295894),_0x42e74a=_0x41507b[_0x33fdb3(0x149)]['length']>0x0?_0x41507b[_0x33fdb3(0x149)][_0x33fdb3(0x1ea)]((_0x20d6a1,_0x3396ed)=>_0x20d6a1+_0x3396ed[_0x33fdb3(0x14e)],0x0)/_0x41507b[_0x33fdb3(0x149)][_0x33fdb3(0x248)]:_0x4c7bfb,_0x5053a4=_0x42e74a>0xc350?0x30d40:_0x42e74a>0x7d0?0xc350:_0x42e74a>0x64?0x4e20:_0x42e74a>0x1?0x1f40:0xbb8,_0x5d6d66=_0x470dc9[_0x33fdb3(0x248)]>=0xc8,_0x32f0ec=_0x5d6d66&&_0x47513b>=3.5&&_0xbaccf6>=_0x5053a4&&_0xbaccf6>=_0x27fe55,_0x29c921=_0x1df728[_0x33fdb3(0x269)](_0x5b8240=>_0x5b8240['quantity']),_0x1a1fa5=empiricalPercentile(_0x470c24,_0x29c921),_0x700a6d=calcOFI(_0x1ce6d2[_0x33fdb3(0x248)]>0xa?_0x1ce6d2:_0x9856b5[_0x33fdb3(0x248)]>0xa?_0x9856b5:_0x1df728);let _0x2142a0=0x0;const _0x5a5247=_0x41507b[_0x33fdb3(0x149)][_0x33fdb3(0x1de)](_0x1c1b7a=>_0x1c1b7a[_0x33fdb3(0x17c)]>_0x2f3841);if(_0x5a5247[_0x33fdb3(0x248)]>0x5){const _0x4c495a=Math[_0x33fdb3(0x226)](0x3,Math[_0x33fdb3(0x236)](_0x5a5247[_0x33fdb3(0x248)]*0.15)),_0x5cc380=_0x5a5247[_0x33fdb3(0x1df)](0x0,_0x4c495a)[_0x33fdb3(0x269)](_0x594ee7=>_0x594ee7[_0x33fdb3(0x14e)]),_0x3dfe53=ema(_0x5cc380,_0x4c495a);_0x2142a0=(_0x4c7bfb-_0x3dfe53)/_0x3dfe53*0x64;}let _0x32eb6b=0x0;if(_0x1ce6d2[_0x33fdb3(0x248)]>0x1){const _0xa61e90=_0x1ce6d2[_0x1ce6d2[_0x33fdb3(0x248)]-0x1]['time']-_0x1ce6d2[0x0][_0x33fdb3(0x17c)];if(_0xa61e90>0x3e8)_0x32eb6b=_0x1ce6d2[_0x33fdb3(0x248)]/_0xa61e90*0xea60;}const _0x21e8c8=detectRegime(_0x41507b[_0x33fdb3(0x19a)],_0x470dc9),_0x126ace=Math['abs'](_0x33bfab),_0x1bb8c4=calcScore(_0x126ace,_0x700a6d,_0x1a1fa5,_0x2142a0,_0x21e8c8,_0x32f0ec,getBookContext(_0x366b97,_0x700a6d>0?1:-1)),_0x15379a={};_0x15379a['price']=_0x4c7bfb,_0x15379a['score']=_0x1bb8c4,_0x15379a[_0x33fdb3(0x19d)]=_0x33bfab,_0x15379a[_0x33fdb3(0x14a)]=_0x700a6d,_0x15379a[_0x33fdb3(0x1d5)]=_0x1a1fa5,_0x15379a[_0x33fdb3(0x15b)]=_0x2142a0,_0x15379a[_0x33fdb3(0x1d9)]=_0x32eb6b,_0x15379a[_0x33fdb3(0x242)]=_0x27fe55,_0x15379a['zValue']=_0x47513b,_0x15379a[_0x33fdb3(0x1a5)]=_0x5053a4,_0x15379a[_0x33fdb3(0x1f3)]=_0x21e8c8,updateCard(_0x366b97,_0x15379a);coinState[_0x366b97].lastOFI=_0x700a6d;coinState[_0x366b97].lastRegime=_0x21e8c8;const _0xa7b785=_0x366b97[_0x33fdb3(0x1eb)](_0x33fdb3(0x160),'')['toUpperCase'](),_0x228580=Math['abs'](_0x700a6d)>0.25,_0x1f1a0f=_0x700a6d>0x0&&_0x2142a0>0x0||_0x700a6d<0x0&&_0x2142a0<0x0;const _0xAbsPrices=_0x5a5247.map(t=>t[_0x33fdb3(0x14e)]);const _0xAbsPriceChg=_0xAbsPrices.length>=4?Math.abs((_0xAbsPrices[_0xAbsPrices.length-1]-_0xAbsPrices[0])/_0xAbsPrices[0]*100):999;const _0xAbsDir=_0x700a6d>0?1:-1;const _0xAbsTrigger=_0x1a1fa5>=80&&Math.abs(_0x700a6d)>0.35&&_0xAbsPriceChg<0.05&&_0x5a5247.length>=8;const _0xAbsBuy=_0x700a6d>0;const _0xAbsBookCtx=getBookContext(_0x366b97,_0xAbsBuy?1:-1);if(_0xAbsTrigger&&_0xAbsBookCtx>=0.6&&_0x4170fe-_0x41507b['lastSmartAlert']>0xea60){_0x41507b[_0x33fdb3(0x145)]=_0x4170fe;const _0xAbsBookLbl=getBookContextLabel(_0x366b97,_0xAbsBuy?1:-1);addAlert('<b>🧲 ABSORÇÃO '+(_0xAbsBuy?'COMPRADORA 🟢':'VENDEDORA 🔴')+'</b><br><b>'+_0xa7b785+'</b>'+' · Pctil:<b>'+Math.round(_0x1a1fa5)+'%</b> · OFI:<b>'+_0x700a6d.toFixed(2)+'</b><br>'+'ΔPreço:<b>'+_0xAbsPriceChg.toFixed(3)+'%</b> · '+_0xAbsBookLbl+' · Regime:<b>'+_0x21e8c8+'</b>',_0xAbsBuy?_0x33fdb3(0x20b):_0x33fdb3(0x1c4)),registerComboSignal(_0x366b97,'smartflow',_0xAbsBuy?0x1:-0x1);registerTriAbsorp(_0x366b97,_0xAbsBuy?1:-1);}_0x126ace>=3.5&&_0x1a1fa5>=0x64&&_0x4170fe-_0x41507b[_0x33fdb3(0x19c)]>0x15f90&&(_0x41507b[_0x33fdb3(0x19c)]=_0x4170fe,zAnomalyTotal++,document['getElementById'](_0x33fdb3(0x1b0))[_0x33fdb3(0x1ac)]=zAnomalyTotal,(()=>{const _0xZDir=!_0x291255?1:-1;const _0xZBookLbl=getBookContextLabel(_0x366b97,_0xZDir);addAlert(_0x33fdb3(0x172)+Math[_0x33fdb3(0x1d3)](_0x33bfab)[_0x33fdb3(0x231)](0x2)+_0x33fdb3(0x1b7)+Math[_0x33fdb3(0x1f1)](_0x1a1fa5)+_0x33fdb3(0x162)+(_0x33fdb3(0x1fa)+_0xa7b785+_0x33fdb3(0x250)+(!_0x291255?'🟢':'🔴')+'\x20·\x20Regime:\x20<b>'+_0x21e8c8+'</b><br>'+_0xZBookLbl),'zanom');registerComboSignal(_0x366b97,'zanom',!_0x291255?0x1:-0x1);})());const _0x423836=_0x700a6d>0x0&&_0x2142a0>0x0||_0x700a6d<0x0&&_0x2142a0<0x0;checkOFIAdaptive(_0x366b97,_0x700a6d)&&_0x423836&&_0x4170fe-_0x41507b['lastOFIAlert']>0x1d4c0&&(()=>{const _0xOFIDir=_0x700a6d>0?1:-1;const _0xOFIBook=getBookContext(_0x366b97,_0xOFIDir);if(_0xOFIBook<0.55)return;const _0xOFIBookLbl=getBookContextLabel(_0x366b97,_0xOFIDir);_0x41507b['lastOFIAlert']=_0x4170fe,ofiTotal++,document[_0x33fdb3(0x260)](_0x33fdb3(0x23b))[_0x33fdb3(0x1ac)]=ofiTotal,addAlert(_0x33fdb3(0x136)+(_0x700a6d>0x0?_0x33fdb3(0x142):_0x33fdb3(0x233))+'<br>'+(_0x33fdb3(0x1fa)+_0xa7b785+_0x33fdb3(0x17e)+_0x700a6d[_0x33fdb3(0x231)](0x2)+_0x33fdb3(0x26e)+_0x2142a0[_0x33fdb3(0x231)](0x2)+_0x33fdb3(0x179)+_0x21e8c8+'<br>'+_0xOFIBookLbl),_0x700a6d>0x0?_0x33fdb3(0x20b):_0x33fdb3(0x1c4)),registerComboSignal(_0x366b97,_0x33fdb3(0x14a),_0x700a6d>0x0?0x1:-0x1);})(),_0x32f0ec&&_0x4170fe-_0x41507b[_0x33fdb3(0x259)]>0x493e0&&(()=>{const _0xWhaleDir=!_0x291255?1:-1;const _0xWhaleBook=getBookContext(_0x366b97,_0xWhaleDir);const _0xWhaleBookLbl=getBookContextLabel(_0x366b97,_0xWhaleDir);_0x41507b[_0x33fdb3(0x259)]=_0x4170fe,addAlert(_0x33fdb3(0x16d)+_0x47513b['toFixed'](0x1)+_0x33fdb3(0x174)+(_0x33fdb3(0x1fa)+_0xa7b785+_0x33fdb3(0x250)+(!_0x291255?_0x33fdb3(0x142):_0x33fdb3(0x233))+'<br>')+('Valor:\x20$'+Math[_0x33fdb3(0x209)](_0xbaccf6)[_0x33fdb3(0x170)]('pt-BR')+_0x33fdb3(0x139)+Math['floor'](_0x5053a4)['toLocaleString'](_0x33fdb3(0x1f9))+'<br>'+_0xWhaleBookLbl+(_0xWhaleBook>=1.2?' 🔥':'')),_0x33fdb3(0x1b6)),registerComboSignal(_0x366b97,'whale',!_0x291255?0x1:-0x1);registerTriWhale(_0x366b97,!_0x291255?1:-1);})();}const dropzone=document[a0_0x48cd95(0x260)](a0_0x48cd95(0x257));[a0_0x48cd95(0x27d),'dragover'][a0_0x48cd95(0x275)](_0x3f54a1=>dropzone[a0_0x48cd95(0x152)](_0x3f54a1,_0x3e0c18=>{const _0x3c5bc9=a0_0x48cd95;_0x3e0c18[_0x3c5bc9(0x18c)](),dropzone[_0x3c5bc9(0x221)][_0x3c5bc9(0x234)](_0x3c5bc9(0x167));})),[a0_0x48cd95(0x1a2),a0_0x48cd95(0x1c7)][a0_0x48cd95(0x275)](_0x2524bf=>dropzone[a0_0x48cd95(0x152)](_0x2524bf,_0x25945f=>{const _0xe057f3=a0_0x48cd95;_0x25945f[_0xe057f3(0x18c)](),dropzone[_0xe057f3(0x221)][_0xe057f3(0x200)](_0xe057f3(0x167));})),dropzone[a0_0x48cd95(0x152)]('drop',_0x370b24=>handleFiles(_0x370b24[a0_0x48cd95(0x21c)][a0_0x48cd95(0x1cb)]));function handleFileSelect(_0x3cf50e){const _0x2d1565=a0_0x48cd95;handleFiles(_0x3cf50e[_0x2d1565(0x1e3)][_0x2d1565(0x1cb)]);}let currentB64=null,currentMime=null;function handleFiles(_0x56a4ec){const _0x3f04c2=a0_0x48cd95;if(!_0x56a4ec[_0x3f04c2(0x248)])return;const _0x1d5163=_0x56a4ec[0x0];if(!_0x1d5163[_0x3f04c2(0x205)][_0x3f04c2(0x274)]('image/')){showAiError(_0x3f04c2(0x18b),_0x3f04c2(0x168));return;}const _0x83bef7=new FileReader();_0x83bef7['onload']=_0x14e12f=>{const _0x2a98fa=_0x3f04c2,_0x36d18c=_0x14e12f[_0x2a98fa(0x1e3)]['result'];currentMime=_0x1d5163[_0x2a98fa(0x205)]||_0x2a98fa(0x1d1),currentB64=_0x36d18c[_0x2a98fa(0x217)](',')[0x1],document[_0x2a98fa(0x260)](_0x2a98fa(0x267))[_0x2a98fa(0x1a9)]=_0x36d18c,document[_0x2a98fa(0x260)](_0x2a98fa(0x267))[_0x2a98fa(0x1cd)][_0x2a98fa(0x14b)]=_0x2a98fa(0x16b),document['getElementById'](_0x2a98fa(0x22a))[_0x2a98fa(0x1cd)]['display']='block',document[_0x2a98fa(0x260)](_0x2a98fa(0x252))[_0x2a98fa(0x1cd)][_0x2a98fa(0x14b)]=_0x2a98fa(0x16b),document[_0x2a98fa(0x260)](_0x2a98fa(0x27c))[_0x2a98fa(0x25b)]=_0x2a98fa(0x190),document[_0x2a98fa(0x260)](_0x2a98fa(0x27c))[_0x2a98fa(0x1ac)]=_0x2a98fa(0x1aa),document[_0x2a98fa(0x260)](_0x2a98fa(0x1ff))['innerHTML']='<div\x20class=\x22placeholder-text\x22>Imagem\x20carregada.\x20Clique\x20em\x20Analisar.</div>';},_0x83bef7[_0x3f04c2(0x16e)]=()=>showAiError('Erro\x20de\x20leitura',_0x3f04c2(0x155)),_0x83bef7[_0x3f04c2(0x19b)](_0x1d5163);}function showAiError(_0x368ef6,_0x5140cb,_0x56f6c6=''){const _0x5a7646=a0_0x48cd95,_0x52fa0a=document['getElementById'](_0x5a7646(0x27c));_0x52fa0a[_0x5a7646(0x25b)]=_0x5a7646(0x16a),_0x52fa0a[_0x5a7646(0x1cd)]['cssText']=_0x5a7646(0x15a),_0x52fa0a[_0x5a7646(0x1ac)]=_0x5a7646(0x235),document[_0x5a7646(0x260)](_0x5a7646(0x1ff))[_0x5a7646(0x27b)]='\x0a\x20\x20\x20\x20<div\x20class=\x22err-box\x22>\x0a\x20\x20\x20\x20\x20\x20<b>⚠️\x20'+_0x368ef6+_0x5a7646(0x253)+_0x5140cb+_0x5a7646(0x219)+(_0x56f6c6?_0x5a7646(0x223)+_0x56f6c6+_0x5a7646(0x134):'')+_0x5a7646(0x1d6);}async function analisarComIA(){const _0x588f08=a0_0x48cd95;if(!currentB64)return;const _0x2afeae=document[_0x588f08(0x260)](_0x588f08(0x22a)),_0x5c2aac=document['getElementById'](_0x588f08(0x1ff)),_0x3428fb=document[_0x588f08(0x260)](_0x588f08(0x27c)),_0x5913f8=document[_0x588f08(0x260)](_0x588f08(0x178))['value'][_0x588f08(0x143)]();_0x2afeae[_0x588f08(0x27a)]=!![],_0x2afeae[_0x588f08(0x1ac)]='🧠\x20Analisando...',_0x3428fb[_0x588f08(0x25b)]=_0x588f08(0x190),_0x3428fb[_0x588f08(0x1cd)][_0x588f08(0x24e)]='',_0x3428fb['textContent']=_0x588f08(0x20e),_0x5c2aac[_0x588f08(0x27b)]=_0x588f08(0x26d);const _0x1b8f5b='Você\x20é\x20um\x20analista\x20técnico\x20quant\x20de\x20criptomoedas\x20de\x20elite\x20com\x20foco\x20em\x20Smart\x20Money\x20Concepts\x20e\x20price\x20action\x20institucional.\x0aProduza\x20análise\x20técnica\x20rigorosa\x20em\x20português\x20do\x20Brasil.\x20Use\x20terminologia\x20precisa:\x20HH/HL/LH/LL,\x20order\x20blocks,\x20FVG,\x20liquidez,\x20BOS/CHoCH.\x0aEstruture\x20com\x20seções\x20claras.\x20Seja\x20objetivo\x20e\x20direto.\x20Finalize\x20com\x20aviso\x20educacional.',_0xb5ae6c={};_0xb5ae6c[_0x588f08(0x205)]=_0x588f08(0x254),_0xb5ae6c[_0x588f08(0x20f)]=currentMime,_0xb5ae6c[_0x588f08(0x1bf)]=currentB64;const _0x28fe1e={};_0x28fe1e[_0x588f08(0x205)]='image',_0x28fe1e[_0x588f08(0x244)]=_0xb5ae6c;const _0x300d92={};_0x300d92['type']=_0x588f08(0x264),_0x300d92[_0x588f08(0x264)]=_0x588f08(0x146)+(_0x5913f8?_0x588f08(0x1c0)+_0x5913f8:'')+'\x0a\x0a1.\x20🏗️\x20Estrutura\x20(HH/HL/LH/LL,\x20BOS/CHoCH,\x20tendência\x20dominante)\x0a2.\x20🎯\x20Zonas\x20(suporte/resistência,\x20order\x20blocks,\x20FVG,\x20liquidez\x20acima/abaixo)\x0a3.\x20🕯️\x20Padrões\x20(candles,\x20formações,\x20confluências)\x0a4.\x20⚡\x20Momentum\x20&\x20Fluxo\x20(divergências,\x20força,\x20volume)\x0a5.\x20🧭\x20Veredito\x20(viés\x20+\x20probabilidade\x20estimada\x20+\x20invalidação)';const _0x3c3a66={};_0x3c3a66[_0x588f08(0x24a)]='user',_0x3c3a66[_0x588f08(0x16c)]=[_0x28fe1e,_0x300d92];const _0x369658={};_0x369658['model']='claude-sonnet-4-20250514',_0x369658[_0x588f08(0x15f)]=0x3e8,_0x369658[_0x588f08(0x13f)]=_0x1b8f5b,_0x369658['messages']=[_0x3c3a66];const _0x37f3ea=_0x369658;try{let _0x37552e;if(AI_ENDPOINT==='DIRECT'){if(!window[_0x588f08(0x15c)]){_0x2afeae[_0x588f08(0x27a)]=![],_0x2afeae[_0x588f08(0x1ac)]=_0x588f08(0x19f),showApiKeyModal();return;}const _0x46f322={};_0x46f322[_0x588f08(0x1f8)]=_0x588f08(0x1dd),_0x46f322[_0x588f08(0x1a3)]=window[_0x588f08(0x15c)],_0x46f322[_0x588f08(0x278)]=_0x588f08(0x157),_0x37552e=await fetch(_0x588f08(0x23a),{'method':_0x588f08(0x1a4),'headers':_0x46f322,'body':JSON[_0x588f08(0x225)](_0x37f3ea)});}else{const _0x17ac03={};_0x17ac03['Content-Type']=_0x588f08(0x1dd),_0x37552e=await fetch(AI_ENDPOINT,{'method':_0x588f08(0x1a4),'headers':_0x17ac03,'body':JSON[_0x588f08(0x225)](_0x37f3ea)});}if(!_0x37552e['ok']){let _0x3c0c99=_0x588f08(0x164)+_0x37552e[_0x588f08(0x261)];try{const _0xe1011b=await _0x37552e[_0x588f08(0x21a)]();_0x3c0c99=_0xe1011b?.[_0x588f08(0x1d0)]?.['message']||_0x3c0c99;}catch(_0x3a7b82){}throw new Error(_0x3c0c99);}const _0x2bccdf=await _0x37552e[_0x588f08(0x21a)]();if(_0x2bccdf[_0x588f08(0x1d0)])throw new Error(_0x2bccdf[_0x588f08(0x1d0)][_0x588f08(0x158)]||JSON[_0x588f08(0x225)](_0x2bccdf[_0x588f08(0x1d0)]));const _0x59f830=(_0x2bccdf[_0x588f08(0x16c)]||[])[_0x588f08(0x269)](_0x20a688=>_0x20a688['type']==='text'?_0x20a688[_0x588f08(0x264)]:'')['join']('');if(!_0x59f830)throw new Error(_0x588f08(0x1da));_0x3428fb[_0x588f08(0x25b)]=_0x588f08(0x230),_0x3428fb[_0x588f08(0x1cd)][_0x588f08(0x24e)]='',_0x3428fb[_0x588f08(0x1ac)]=_0x588f08(0x1ec),renderReport(_0x5c2aac,_0x59f830);}catch(_0x597b5a){let _0x368971='';if(_0x597b5a['message']['includes']('Failed\x20to\x20fetch')||_0x597b5a[_0x588f08(0x158)][_0x588f08(0x228)]('NetworkError'))_0x368971=_0x588f08(0x26a);else{if(_0x597b5a[_0x588f08(0x158)]['includes'](_0x588f08(0x240))||_0x597b5a[_0x588f08(0x158)]['includes'](_0x588f08(0x1fb)))_0x368971=_0x588f08(0x22c);else _0x597b5a[_0x588f08(0x158)][_0x588f08(0x228)]('invalid_request_error')&&(_0x368971='Imagem\x20muito\x20grande\x20ou\x20formato\x20não\x20suportado.\x20Tente\x20com\x20PNG\x20menor.');}showAiError(_0x588f08(0x1fd),_0x597b5a[_0x588f08(0x158)],_0x368971);}finally{_0x2afeae['disabled']=![],_0x2afeae['textContent']='⚡\x20Analisar\x20Outro\x20Gráfico';}}function renderReport(_0x2f74f3,_0x291527){const _0x1a6ce4=a0_0x48cd95,_0x4fc221=_0x291527[_0x1a6ce4(0x217)]('\x0a');let _0x4d0aae='',_0x4b09be='',_0x365a4b='';const _0x4a3ad7=()=>{const _0x5ae51a=_0x1a6ce4;if(!_0x4b09be)return;_0x4d0aae+=_0x5ae51a(0x1c2)+_0x4b09be+_0x5ae51a(0x1c6)+_0x365a4b['trim']()+_0x5ae51a(0x1cc),_0x365a4b='',_0x4b09be='';};_0x4fc221[_0x1a6ce4(0x275)](_0x1373c2=>{const _0x3ddfc4=_0x1a6ce4,_0x2f4fc4=_0x1373c2[_0x3ddfc4(0x143)]();if(!_0x2f4fc4){_0x365a4b+='<br>';return;}/^#{1,3}\s/['test'](_0x2f4fc4)||/^\d+\.\s*[🏗🎯🕯⚡🧭]/[_0x3ddfc4(0x19e)](_0x2f4fc4)||/^[🏗🎯🕯⚡🧭]/['test'](_0x2f4fc4)||/^\*\*/[_0x3ddfc4(0x19e)](_0x2f4fc4)&&_0x2f4fc4[_0x3ddfc4(0x1a1)]('**')?(_0x4a3ad7(),_0x4b09be=_0x2f4fc4['replace'](/^#{1,3}\s/,'')[_0x3ddfc4(0x1eb)](/^\d+\.\s*/,'')[_0x3ddfc4(0x1eb)](/\*\*/g,'')):_0x365a4b+=_0x2f4fc4[_0x3ddfc4(0x1eb)](/\*\*(.*?)\*\*/g,_0x3ddfc4(0x210))[_0x3ddfc4(0x1eb)](/^[-•]\s/,_0x3ddfc4(0x1b8))+'\x20';}),_0x4a3ad7();if(!_0x4d0aae)_0x4d0aae=_0x1a6ce4(0x1b5)+_0x291527[_0x1a6ce4(0x1eb)](/\*\*(.*?)\*\*/g,_0x1a6ce4(0x210))[_0x1a6ce4(0x1eb)](/\n/g,'<br>')+_0x1a6ce4(0x1cc);_0x4d0aae+=_0x1a6ce4(0x153),_0x2f74f3[_0x1a6ce4(0x27b)]=_0x4d0aae;}function showApiKeyModal(){const _0x2665b1=a0_0x48cd95,_0x5e1504=document[_0x2665b1(0x260)](_0x2665b1(0x22b));if(_0x5e1504){_0x5e1504[_0x2665b1(0x1cd)][_0x2665b1(0x14b)]=_0x2665b1(0x1ad);return;}const _0x2103ee=document[_0x2665b1(0x22d)]('div');_0x2103ee['id']=_0x2665b1(0x22b),_0x2103ee[_0x2665b1(0x1cd)]['cssText']='position:fixed;inset:0;background:rgba(4,11,18,.85);backdrop-filter:blur(8px);z-index:999;display:flex;align-items:center;justify-content:center',_0x2103ee[_0x2665b1(0x27b)]=_0x2665b1(0x214),document[_0x2665b1(0x224)]['appendChild'](_0x2103ee),setTimeout(()=>document[_0x2665b1(0x260)](_0x2665b1(0x1f7))?.[_0x2665b1(0x180)](),0x64);}function saveApiKey(){const _0x13cc71=a0_0x48cd95,_0x4bb197=document[_0x13cc71(0x260)]('apikeyinput')?.[_0x13cc71(0x280)]?.[_0x13cc71(0x143)]();if(!_0x4bb197||!_0x4bb197[_0x13cc71(0x274)](_0x13cc71(0x237))){alert('Key\x20inválida.\x20Deve\x20começar\x20com\x20\x22sk-\x22.');return;}window[_0x13cc71(0x15c)]=_0x4bb197,document[_0x13cc71(0x260)]('apikeymodal')['style']['display']=_0x13cc71(0x24b),analisarComIA();}const comboWindow={},lastComboAlert={};let comboCounter=0x0;const a0_0x951749={};a0_0x951749[a0_0x48cd95(0x189)]='Smart\x20Money',a0_0x951749[a0_0x48cd95(0x156)]='Triple\x20Crowd',a0_0x951749[a0_0x48cd95(0x14a)]='Inst.\x20Flow',a0_0x951749['whale']=a0_0x48cd95(0x1f5);a0_0x951749['obi']='Book Press.';const SIGNAL_NAMES=a0_0x951749,a0_0x31ead8={};a0_0x31ead8[a0_0x48cd95(0x1e9)]=0x0,a0_0x31ead8[a0_0x48cd95(0x238)]=0x0,a0_0x31ead8[a0_0x48cd95(0x15b)]=0x0;const btcTracker=a0_0x31ead8;function updateBtcBias(_0x3a61fe,_0x1ef07b){const _0x36c176=a0_0x48cd95;btcTracker[_0x36c176(0x1e9)]=_0x3a61fe,btcTracker[_0x36c176(0x15b)]=_0x1ef07b,btcTracker[_0x36c176(0x238)]=Date['now']();const _0x32886a=document['getElementById']('btcBiasLabel');if(!_0x32886a)return;if(_0x3a61fe>0x0)_0x32886a[_0x36c176(0x1ac)]=_0x36c176(0x16f),_0x32886a['style'][_0x36c176(0x277)]=_0x36c176(0x187);else _0x3a61fe<0x0?(_0x32886a[_0x36c176(0x1ac)]='▼\x20VENDA',_0x32886a[_0x36c176(0x1cd)][_0x36c176(0x277)]=_0x36c176(0x188)):(_0x32886a['textContent']='—',_0x32886a['style']['color']=_0x36c176(0x14c));}function getBtcBias(){const _0x3817fd=a0_0x48cd95;if(Date['now']()-btcTracker['lastUpdate']>0x2bf20)return 0x0;return btcTracker[_0x3817fd(0x1e9)];}function getPriceMomentumDir(_0x45b0a5){const _0x229af6=a0_0x48cd95,_0x5f1f9b=coinState[_0x45b0a5];if(!_0x5f1f9b||_0x5f1f9b[_0x229af6(0x19a)][_0x229af6(0x248)]<0x5)return 0x0;const _0x1a4010=_0x5f1f9b[_0x229af6(0x19a)],_0x3dc81c=_0x1a4010['slice'](-0x3)[_0x229af6(0x1ea)]((_0x522579,_0x403fe7)=>_0x522579+_0x403fe7,0x0)/0x3,_0x145ac3=_0x1a4010[_0x229af6(0x1df)](-0x8,-0x5)[_0x229af6(0x1ea)]((_0x2fbce0,_0x14fee3)=>_0x2fbce0+_0x14fee3,0x0)/0x3;if(_0x145ac3===0x0)return 0x0;const _0x51d805=(_0x3dc81c-_0x145ac3)/_0x145ac3*0x64;if(_0x51d805>0.08)return 0x1;if(_0x51d805<-0.08)return-0x1;return 0x0;}function registerComboSignal(_0x194223,_0x2db243,_0x43ff61){const _0xceca71=a0_0x48cd95;if(!comboWindow[_0x194223])comboWindow[_0x194223]={};const _0x458707=Date['now'](),_0x1d39b1={};_0x1d39b1['ts']=_0x458707,_0x1d39b1['dir']=_0x43ff61,comboWindow[_0x194223][_0x2db243]=_0x1d39b1;for(const _0x4b7108 of Object[_0xceca71(0x1fe)](comboWindow[_0x194223])){if(_0x458707-comboWindow[_0x194223][_0x4b7108]['ts']>0xea60)delete comboWindow[_0x194223][_0x4b7108];}if(_0x194223===_0xceca71(0x1d4)){const _0xf1ae2=coinState[_0xceca71(0x1d4)],_0xcdfe7b=_0xf1ae2?_0xf1ae2[_0xceca71(0x19a)]['length']>0x5?(_0xf1ae2['sparkPrices'][_0xceca71(0x1df)](-0x1)[0x0]-_0xf1ae2[_0xceca71(0x19a)][_0xceca71(0x1df)](-0x6,-0x5)[0x0])/_0xf1ae2[_0xceca71(0x19a)][_0xceca71(0x1df)](-0x6,-0x5)[0x0]*0x64:0x0:0x0;updateBtcBias(_0x43ff61,_0xcdfe7b);}const _0x5041f1=Object[_0xceca71(0x21f)](comboWindow[_0x194223]);if(_0x5041f1[_0xceca71(0x248)]<0x4)return;const _0x8b52fd=_0x5041f1[_0xceca71(0x1de)](([,_0x1536e8])=>_0x1536e8['dir']>0x0)[_0xceca71(0x248)],_0x364ade=_0x5041f1['filter'](([,_0x3ca8e8])=>_0x3ca8e8[_0xceca71(0x1c1)]<0x0)[_0xceca71(0x248)];let _0x4c6f78=0x0;if(_0x8b52fd===0x4)_0x4c6f78=0x1;if(_0x364ade===0x4)_0x4c6f78=-0x1;if(_0x4c6f78===0x0)return;if(_0x194223!==_0xceca71(0x1d4)){const _0x57f977=getBtcBias();if(_0x57f977!==0x0&&_0x57f977!==_0x4c6f78)return;}const _0x1834a5=getPriceMomentumDir(_0x194223);if(_0x1834a5!==0x0&&_0x1834a5!==_0x4c6f78)return;if(lastComboAlert[_0x194223]&&_0x458707-lastComboAlert[_0x194223]<0x493e0)return;lastComboAlert[_0x194223]=_0x458707;const _0x563e7b=_0x5041f1[_0xceca71(0x269)](([_0x37ba9f])=>SIGNAL_NAMES[_0x37ba9f]||_0x37ba9f),_0x1f8977=_0x194223!=='btcusdt'?getBtcBias():null;fireComboAlert(_0x194223,_0x4c6f78,_0x563e7b,_0x1f8977,_0x1834a5);}function fireComboAlert(_0x1036c4,_0x43fc48,_0x16169a,_0x1aeb22,_0x4c78f8){const _0x34cb0f=a0_0x48cd95,_0x1f2fc6=_0x1036c4[_0x34cb0f(0x1eb)](_0x34cb0f(0x160),'')[_0x34cb0f(0x216)](),_0xe8b677=_0x43fc48>0x0,_0x498176=_0xe8b677?_0x34cb0f(0x16f):_0x34cb0f(0x206),_0x4eb620=_0xe8b677?_0x34cb0f(0x1fc):'combo-sell';let _0x58be42='';if(_0x1aeb22!==null){if(_0x1aeb22===_0x43fc48)_0x58be42=_0x34cb0f(0x1e4);else{if(_0x1aeb22===0x0)_0x58be42=_0x34cb0f(0x207);}}const _0x42acc6=_0x4c78f8===_0x43fc48?'<span\x20style=\x22color:var(--buy);font-size:9px\x22>✔\x20Preço\x20confirmado</span>':_0x34cb0f(0x197),_0x2f2506=document['getElementById']('noCombo');if(_0x2f2506)_0x2f2506['remove']();comboCounter++;const _0x2f4b13=document[_0x34cb0f(0x22d)](_0x34cb0f(0x144));_0x2f4b13[_0x34cb0f(0x25b)]='combo-item combo-fluxo combo-pulse combo-fluxo-pulse',_0x2f4b13[_0x34cb0f(0x27b)]=_0x34cb0f(0x22f)+new Date()[_0x34cb0f(0x191)]('pt-BR')+'</div>\x0a\x20\x20\x20\x20\x20\x20<div\x20style=\x22display:flex;align-items:center;gap:8px;margin:4px\x200\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<span\x20style=\x22font-size:16px;font-weight:800;color:#ffc832;letter-spacing:1px\x22>⚡ SINAL DE FLUXO</span>\x0a\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20<div\x20style=\x22font-size:9px;color:rgba(255,200,50,.6);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px\x22>4/4 sinais · aguardando leitura</div>\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22combo-detail\x22\x20style=\x22color:rgba(255,255,255,.5)\x22>'+_0x16169a[_0x34cb0f(0x256)](_0x34cb0f(0x1e6))+'</div>\x0a\x20\x20\x20\x20\x20\x20<div\x20style=\x22display:flex;gap:8px;margin-top:3px\x22>'+_0x58be42+(_0x58be42?_0x34cb0f(0x26b):'')+_0x42acc6+'</div>\x0a\x20\x20\x20\x20</div>';const _0x168569=document[_0x34cb0f(0x260)](_0x34cb0f(0x1dc));_0x168569['prepend'](_0x2f4b13);while(_0x168569[_0x34cb0f(0x1bb)][_0x34cb0f(0x248)]>0xc)_0x168569[_0x34cb0f(0x20d)](_0x168569['lastChild']);// Som neutro dourado para Sinal de Fluxo
+function connectWS(_0x273323){let _0x1a15a4=0x5dc;function _0x1c4b1f(){const _0x3985f6=a0_0x4352,_0xb1146f=new WebSocket(_0x3985f6(0x148)+_0x273323+_0x3985f6(0x272));_0xb1146f[_0x3985f6(0x1ce)]=()=>{const _0x34958c=_0x3985f6;_0x1a15a4=0x5dc,document['getElementById']('card-'+_0x273323)?.[_0x34958c(0x221)][_0x34958c(0x200)](_0x34958c(0x247));},_0xb1146f['onmessage']=_0x1e2640=>handleTrade(_0x273323,JSON['parse'](_0x1e2640['data'])),_0xb1146f['onclose']=()=>{const _0x9d3d13=_0x3985f6;document['getElementById']('card-'+_0x273323)?.[_0x9d3d13(0x221)][_0x9d3d13(0x234)](_0x9d3d13(0x247)),setTimeout(_0x1c4b1f,_0x1a15a4),_0x1a15a4=Math[_0x9d3d13(0x229)](_0x1a15a4*1.8,0x7530);},_0xb1146f[_0x3985f6(0x16e)]=()=>_0xb1146f[_0x3985f6(0x151)]();}_0x1c4b1f();}function handleTrade(_0x366b97,_0x1a0198){const _0x33fdb3=a0_0x48cd95,_0x4c7bfb=Number(_0x1a0198['p']),_0x470c24=Number(_0x1a0198['q']),_0xbaccf6=_0x4c7bfb*_0x470c24,_0x291255=_0x1a0198['m'],_0x4170fe=Date[_0x33fdb3(0x1ee)](),_0x41507b=coinState[_0x366b97],_0x4d8d60={};_0x4d8d60['time']=_0x4170fe,_0x4d8d60[_0x33fdb3(0x14e)]=_0x4c7bfb,_0x4d8d60[_0x33fdb3(0x222)]=_0xbaccf6,_0x41507b[_0x33fdb3(0x149)][_0x33fdb3(0x220)](_0x4d8d60);const _0x2b5fe1={};_0x2b5fe1['time']=_0x4170fe,_0x2b5fe1[_0x33fdb3(0x1f6)]=_0x470c24,_0x2b5fe1[_0x33fdb3(0x268)]=!_0x291255,_0x2b5fe1[_0x33fdb3(0x280)]=_0xbaccf6,_0x41507b[_0x33fdb3(0x1c9)]['push'](_0x2b5fe1);if(_0x4170fe-_0x41507b[_0x33fdb3(0x1d7)]>0x3e8){_0x41507b['sparkPrices'][_0x33fdb3(0x220)](_0x4c7bfb);if(_0x41507b['sparkPrices'][_0x33fdb3(0x248)]>0x3c)_0x41507b[_0x33fdb3(0x19a)][_0x33fdb3(0x1ab)]();_0x41507b['lastSparkTime']=_0x4170fe;}const _0x139018=_0x4170fe-0xdbba0,_0x2a4fa1=_0x4170fe-0x493e0,_0x2f3841=_0x4170fe-0xea60;_0x41507b[_0x33fdb3(0x149)]=_0x41507b['trades'][_0x33fdb3(0x1de)](_0x552e1a=>_0x552e1a[_0x33fdb3(0x17c)]>_0x139018),_0x41507b[_0x33fdb3(0x1c9)]=_0x41507b[_0x33fdb3(0x1c9)][_0x33fdb3(0x1de)](_0x2b22a7=>_0x2b22a7[_0x33fdb3(0x17c)]>_0x139018);if(_0x41507b['volumes'][_0x33fdb3(0x248)]<0x3c)return;const _0x1df728=_0x41507b['volumes'],_0x9856b5=_0x41507b[_0x33fdb3(0x1c9)]['filter'](_0x44bba0=>_0x44bba0[_0x33fdb3(0x17c)]>_0x2a4fa1),_0x1ce6d2=_0x41507b[_0x33fdb3(0x1c9)][_0x33fdb3(0x1de)](_0x2131dd=>_0x2131dd[_0x33fdb3(0x17c)]>_0x2f3841),_0x33bfab=multiWindowLogZ(_0x470c24,_0x1ce6d2,_0x9856b5[_0x33fdb3(0x248)]>0xa?_0x9856b5:_0x1df728,_0x1df728),_0x470dc9=(_0x9856b5[_0x33fdb3(0x248)]>0xa?_0x9856b5:_0x1df728)[_0x33fdb3(0x269)](_0x3d5bf8=>_0x3d5bf8[_0x33fdb3(0x280)]),_0x47513b=logZScore(_0xbaccf6,_0x470dc9),_0x454a45=_0x470dc9['map'](_0x1766d7=>Math[_0x33fdb3(0x199)](Math['max'](_0x1766d7,1e-10))),{mean:_0x38e339,std:_0x295894}=statsOf(_0x454a45),_0x27fe55=Math[_0x33fdb3(0x1ed)](_0x38e339+3.5*_0x295894),_0x42e74a=_0x41507b[_0x33fdb3(0x149)]['length']>0x0?_0x41507b[_0x33fdb3(0x149)][_0x33fdb3(0x1ea)]((_0x20d6a1,_0x3396ed)=>_0x20d6a1+_0x3396ed[_0x33fdb3(0x14e)],0x0)/_0x41507b[_0x33fdb3(0x149)][_0x33fdb3(0x248)]:_0x4c7bfb,_0x5053a4=_0x42e74a>0xc350?0x30d40:_0x42e74a>0x7d0?0xc350:_0x42e74a>0x64?0x4e20:_0x42e74a>0x1?0x1f40:0xbb8,_0x5d6d66=_0x470dc9[_0x33fdb3(0x248)]>=0xc8,_0x32f0ec=_0x5d6d66&&_0x47513b>=3.5&&_0xbaccf6>=_0x5053a4&&_0xbaccf6>=_0x27fe55,_0x29c921=_0x1df728[_0x33fdb3(0x269)](_0x5b8240=>_0x5b8240['quantity']),_0x1a1fa5=empiricalPercentile(_0x470c24,_0x29c921),_0x700a6d=calcOFI(_0x1ce6d2[_0x33fdb3(0x248)]>0xa?_0x1ce6d2:_0x9856b5[_0x33fdb3(0x248)]>0xa?_0x9856b5:_0x1df728);let _0x2142a0=0x0;const _0x5a5247=_0x41507b[_0x33fdb3(0x149)][_0x33fdb3(0x1de)](_0x1c1b7a=>_0x1c1b7a[_0x33fdb3(0x17c)]>_0x2f3841);if(_0x5a5247[_0x33fdb3(0x248)]>0x5){const _0x4c495a=Math[_0x33fdb3(0x226)](0x3,Math[_0x33fdb3(0x236)](_0x5a5247[_0x33fdb3(0x248)]*0.15)),_0x5cc380=_0x5a5247[_0x33fdb3(0x1df)](0x0,_0x4c495a)[_0x33fdb3(0x269)](_0x594ee7=>_0x594ee7[_0x33fdb3(0x14e)]),_0x3dfe53=ema(_0x5cc380,_0x4c495a);_0x2142a0=(_0x4c7bfb-_0x3dfe53)/_0x3dfe53*0x64;}let _0x32eb6b=0x0;if(_0x1ce6d2[_0x33fdb3(0x248)]>0x1){const _0xa61e90=_0x1ce6d2[_0x1ce6d2[_0x33fdb3(0x248)]-0x1]['time']-_0x1ce6d2[0x0][_0x33fdb3(0x17c)];if(_0xa61e90>0x3e8)_0x32eb6b=_0x1ce6d2[_0x33fdb3(0x248)]/_0xa61e90*0xea60;}const _0x21e8c8=detectRegime(_0x41507b[_0x33fdb3(0x19a)],_0x470dc9),_0x126ace=Math['abs'](_0x33bfab),_0x1bb8c4=calcScore(_0x126ace,_0x700a6d,_0x1a1fa5,_0x2142a0,_0x21e8c8,_0x32f0ec,getBookContext(_0x366b97,_0x700a6d>0?1:-1)),_0x15379a={};_0x15379a['price']=_0x4c7bfb,_0x15379a['score']=_0x1bb8c4,_0x15379a[_0x33fdb3(0x19d)]=_0x33bfab,_0x15379a[_0x33fdb3(0x14a)]=_0x700a6d,_0x15379a[_0x33fdb3(0x1d5)]=_0x1a1fa5,_0x15379a[_0x33fdb3(0x15b)]=_0x2142a0,_0x15379a[_0x33fdb3(0x1d9)]=_0x32eb6b,_0x15379a[_0x33fdb3(0x242)]=_0x27fe55,_0x15379a['zValue']=_0x47513b,_0x15379a[_0x33fdb3(0x1a5)]=_0x5053a4,_0x15379a[_0x33fdb3(0x1f3)]=_0x21e8c8,updateCard(_0x366b97,_0x15379a);coinState[_0x366b97].lastOFI=_0x700a6d;coinState[_0x366b97].lastRegime=_0x21e8c8;const _0xa7b785=_0x366b97[_0x33fdb3(0x1eb)](_0x33fdb3(0x160),'')['toUpperCase'](),_0x228580=Math['abs'](_0x700a6d)>0.25,_0x1f1a0f=_0x700a6d>0x0&&_0x2142a0>0x0||_0x700a6d<0x0&&_0x2142a0<0x0;const _0xAbsPrices=_0x5a5247.map(t=>t[_0x33fdb3(0x14e)]);const _0xAbsPriceChg=_0xAbsPrices.length>=4?Math.abs((_0xAbsPrices[_0xAbsPrices.length-1]-_0xAbsPrices[0])/_0xAbsPrices[0]*100):999;const _0xAbsDir=_0x700a6d>0?1:-1;const _0xAbsTrigger=_0x1a1fa5>=80&&Math.abs(_0x700a6d)>0.35&&_0xAbsPriceChg<0.05&&_0x5a5247.length>=8;const _0xAbsBuy=_0x700a6d>0;const _0xAbsBookCtx=getBookContext(_0x366b97,_0xAbsBuy?1:-1);if(_0xAbsTrigger&&_0xAbsBookCtx>=1.1&&_0x4170fe-_0x41507b['lastSmartAlert']>0xea60){_0x41507b[_0x33fdb3(0x145)]=_0x4170fe;const _0xAbsBookLbl=getBookContextLabel(_0x366b97,_0xAbsBuy?1:-1);addAlert('<b>🧲 ABSORÇÃO '+(_0xAbsBuy?'COMPRADORA 🟢':'VENDEDORA 🔴')+'</b><br><b>'+_0xa7b785+'</b>'+' · Pctil:<b>'+Math.round(_0x1a1fa5)+'%</b> · OFI:<b>'+_0x700a6d.toFixed(2)+'</b><br>'+'ΔPreço:<b>'+_0xAbsPriceChg.toFixed(3)+'%</b> · '+_0xAbsBookLbl+' · Regime:<b>'+_0x21e8c8+'</b>',_0xAbsBuy?_0x33fdb3(0x20b):_0x33fdb3(0x1c4)),registerComboSignal(_0x366b97,'smartflow',_0xAbsBuy?0x1:-0x1);registerTriAbsorp(_0x366b97,_0xAbsBuy?1:-1);}_0x126ace>=3.5&&_0x1a1fa5>=0x64&&_0x4170fe-_0x41507b[_0x33fdb3(0x19c)]>0x15f90&&(_0x41507b[_0x33fdb3(0x19c)]=_0x4170fe,zAnomalyTotal++,document['getElementById'](_0x33fdb3(0x1b0))[_0x33fdb3(0x1ac)]=zAnomalyTotal,(()=>{const _0xZDir=!_0x291255?1:-1;const _0xZBookLbl=getBookContextLabel(_0x366b97,_0xZDir);addAlert(_0x33fdb3(0x172)+Math[_0x33fdb3(0x1d3)](_0x33bfab)[_0x33fdb3(0x231)](0x2)+_0x33fdb3(0x1b7)+Math[_0x33fdb3(0x1f1)](_0x1a1fa5)+_0x33fdb3(0x162)+(_0x33fdb3(0x1fa)+_0xa7b785+_0x33fdb3(0x250)+(!_0x291255?'🟢':'🔴')+'\x20·\x20Regime:\x20<b>'+_0x21e8c8+'</b><br>'+_0xZBookLbl),'zanom');registerComboSignal(_0x366b97,'zanom',!_0x291255?0x1:-0x1);})());const _0x423836=_0x700a6d>0x0&&_0x2142a0>0x0||_0x700a6d<0x0&&_0x2142a0<0x0;checkOFIAdaptive(_0x366b97,_0x700a6d)&&_0x423836&&_0x4170fe-_0x41507b['lastOFIAlert']>0x1d4c0&&(()=>{const _0xOFIDir=_0x700a6d>0?1:-1;const _0xOFIBook=getBookContext(_0x366b97,_0xOFIDir);if(_0xOFIBook<0.55)return;const _0xOFIBookLbl=getBookContextLabel(_0x366b97,_0xOFIDir);_0x41507b['lastOFIAlert']=_0x4170fe,ofiTotal++,document[_0x33fdb3(0x260)](_0x33fdb3(0x23b))[_0x33fdb3(0x1ac)]=ofiTotal,addAlert(_0x33fdb3(0x136)+(_0x700a6d>0x0?_0x33fdb3(0x142):_0x33fdb3(0x233))+'<br>'+(_0x33fdb3(0x1fa)+_0xa7b785+_0x33fdb3(0x17e)+_0x700a6d[_0x33fdb3(0x231)](0x2)+_0x33fdb3(0x26e)+_0x2142a0[_0x33fdb3(0x231)](0x2)+_0x33fdb3(0x179)+_0x21e8c8+'<br>'+_0xOFIBookLbl),_0x700a6d>0x0?_0x33fdb3(0x20b):_0x33fdb3(0x1c4)),registerComboSignal(_0x366b97,_0x33fdb3(0x14a),_0x700a6d>0x0?0x1:-0x1);})(),_0x32f0ec&&_0x4170fe-_0x41507b[_0x33fdb3(0x259)]>0x493e0&&(()=>{const _0xWhaleDir=!_0x291255?1:-1;const _0xWhaleBook=getBookContext(_0x366b97,_0xWhaleDir);const _0xWhaleBookLbl=getBookContextLabel(_0x366b97,_0xWhaleDir);_0x41507b[_0x33fdb3(0x259)]=_0x4170fe,addAlert(_0x33fdb3(0x16d)+_0x47513b['toFixed'](0x1)+_0x33fdb3(0x174)+(_0x33fdb3(0x1fa)+_0xa7b785+_0x33fdb3(0x250)+(!_0x291255?_0x33fdb3(0x142):_0x33fdb3(0x233))+'<br>')+('Valor:\x20$'+Math[_0x33fdb3(0x209)](_0xbaccf6)[_0x33fdb3(0x170)]('pt-BR')+_0x33fdb3(0x139)+Math['floor'](_0x5053a4)['toLocaleString'](_0x33fdb3(0x1f9))+'<br>'+_0xWhaleBookLbl+(_0xWhaleBook>=1.2?' 🔥':'')),_0x33fdb3(0x1b6)),registerComboSignal(_0x366b97,'whale',!_0x291255?0x1:-0x1);registerTriWhale(_0x366b97,!_0x291255?1:-1);})();}const dropzone=document[a0_0x48cd95(0x260)](a0_0x48cd95(0x257));[a0_0x48cd95(0x27d),'dragover'][a0_0x48cd95(0x275)](_0x3f54a1=>dropzone[a0_0x48cd95(0x152)](_0x3f54a1,_0x3e0c18=>{const _0x3c5bc9=a0_0x48cd95;_0x3e0c18[_0x3c5bc9(0x18c)](),dropzone[_0x3c5bc9(0x221)][_0x3c5bc9(0x234)](_0x3c5bc9(0x167));})),[a0_0x48cd95(0x1a2),a0_0x48cd95(0x1c7)][a0_0x48cd95(0x275)](_0x2524bf=>dropzone[a0_0x48cd95(0x152)](_0x2524bf,_0x25945f=>{const _0xe057f3=a0_0x48cd95;_0x25945f[_0xe057f3(0x18c)](),dropzone[_0xe057f3(0x221)][_0xe057f3(0x200)](_0xe057f3(0x167));})),dropzone[a0_0x48cd95(0x152)]('drop',_0x370b24=>handleFiles(_0x370b24[a0_0x48cd95(0x21c)][a0_0x48cd95(0x1cb)]));function handleFileSelect(_0x3cf50e){const _0x2d1565=a0_0x48cd95;handleFiles(_0x3cf50e[_0x2d1565(0x1e3)][_0x2d1565(0x1cb)]);}let currentB64=null,currentMime=null;function handleFiles(_0x56a4ec){const _0x3f04c2=a0_0x48cd95;if(!_0x56a4ec[_0x3f04c2(0x248)])return;const _0x1d5163=_0x56a4ec[0x0];if(!_0x1d5163[_0x3f04c2(0x205)][_0x3f04c2(0x274)]('image/')){showAiError(_0x3f04c2(0x18b),_0x3f04c2(0x168));return;}const _0x83bef7=new FileReader();_0x83bef7['onload']=_0x14e12f=>{const _0x2a98fa=_0x3f04c2,_0x36d18c=_0x14e12f[_0x2a98fa(0x1e3)]['result'];currentMime=_0x1d5163[_0x2a98fa(0x205)]||_0x2a98fa(0x1d1),currentB64=_0x36d18c[_0x2a98fa(0x217)](',')[0x1],document[_0x2a98fa(0x260)](_0x2a98fa(0x267))[_0x2a98fa(0x1a9)]=_0x36d18c,document[_0x2a98fa(0x260)](_0x2a98fa(0x267))[_0x2a98fa(0x1cd)][_0x2a98fa(0x14b)]=_0x2a98fa(0x16b),document['getElementById'](_0x2a98fa(0x22a))[_0x2a98fa(0x1cd)]['display']='block',document[_0x2a98fa(0x260)](_0x2a98fa(0x252))[_0x2a98fa(0x1cd)][_0x2a98fa(0x14b)]=_0x2a98fa(0x16b),document[_0x2a98fa(0x260)](_0x2a98fa(0x27c))[_0x2a98fa(0x25b)]=_0x2a98fa(0x190),document[_0x2a98fa(0x260)](_0x2a98fa(0x27c))[_0x2a98fa(0x1ac)]=_0x2a98fa(0x1aa),document[_0x2a98fa(0x260)](_0x2a98fa(0x1ff))['innerHTML']='<div\x20class=\x22placeholder-text\x22>Imagem\x20carregada.\x20Clique\x20em\x20Analisar.</div>';},_0x83bef7[_0x3f04c2(0x16e)]=()=>showAiError('Erro\x20de\x20leitura',_0x3f04c2(0x155)),_0x83bef7[_0x3f04c2(0x19b)](_0x1d5163);}function showAiError(_0x368ef6,_0x5140cb,_0x56f6c6=''){const _0x5a7646=a0_0x48cd95,_0x52fa0a=document['getElementById'](_0x5a7646(0x27c));_0x52fa0a[_0x5a7646(0x25b)]=_0x5a7646(0x16a),_0x52fa0a[_0x5a7646(0x1cd)]['cssText']=_0x5a7646(0x15a),_0x52fa0a[_0x5a7646(0x1ac)]=_0x5a7646(0x235),document[_0x5a7646(0x260)](_0x5a7646(0x1ff))[_0x5a7646(0x27b)]='\x0a\x20\x20\x20\x20<div\x20class=\x22err-box\x22>\x0a\x20\x20\x20\x20\x20\x20<b>⚠️\x20'+_0x368ef6+_0x5a7646(0x253)+_0x5140cb+_0x5a7646(0x219)+(_0x56f6c6?_0x5a7646(0x223)+_0x56f6c6+_0x5a7646(0x134):'')+_0x5a7646(0x1d6);}async function analisarComIA(){const _0x588f08=a0_0x48cd95;if(!currentB64)return;const _0x2afeae=document[_0x588f08(0x260)](_0x588f08(0x22a)),_0x5c2aac=document['getElementById'](_0x588f08(0x1ff)),_0x3428fb=document[_0x588f08(0x260)](_0x588f08(0x27c)),_0x5913f8=document[_0x588f08(0x260)](_0x588f08(0x178))['value'][_0x588f08(0x143)]();_0x2afeae[_0x588f08(0x27a)]=!![],_0x2afeae[_0x588f08(0x1ac)]='🧠\x20Analisando...',_0x3428fb[_0x588f08(0x25b)]=_0x588f08(0x190),_0x3428fb[_0x588f08(0x1cd)][_0x588f08(0x24e)]='',_0x3428fb['textContent']=_0x588f08(0x20e),_0x5c2aac[_0x588f08(0x27b)]=_0x588f08(0x26d);const _0x1b8f5b='Você\x20é\x20um\x20analista\x20técnico\x20quant\x20de\x20criptomoedas\x20de\x20elite\x20com\x20foco\x20em\x20Smart\x20Money\x20Concepts\x20e\x20price\x20action\x20institucional.\x0aProduza\x20análise\x20técnica\x20rigorosa\x20em\x20português\x20do\x20Brasil.\x20Use\x20terminologia\x20precisa:\x20HH/HL/LH/LL,\x20order\x20blocks,\x20FVG,\x20liquidez,\x20BOS/CHoCH.\x0aEstruture\x20com\x20seções\x20claras.\x20Seja\x20objetivo\x20e\x20direto.\x20Finalize\x20com\x20aviso\x20educacional.',_0xb5ae6c={};_0xb5ae6c[_0x588f08(0x205)]=_0x588f08(0x254),_0xb5ae6c[_0x588f08(0x20f)]=currentMime,_0xb5ae6c[_0x588f08(0x1bf)]=currentB64;const _0x28fe1e={};_0x28fe1e[_0x588f08(0x205)]='image',_0x28fe1e[_0x588f08(0x244)]=_0xb5ae6c;const _0x300d92={};_0x300d92['type']=_0x588f08(0x264),_0x300d92[_0x588f08(0x264)]=_0x588f08(0x146)+(_0x5913f8?_0x588f08(0x1c0)+_0x5913f8:'')+'\x0a\x0a1.\x20🏗️\x20Estrutura\x20(HH/HL/LH/LL,\x20BOS/CHoCH,\x20tendência\x20dominante)\x0a2.\x20🎯\x20Zonas\x20(suporte/resistência,\x20order\x20blocks,\x20FVG,\x20liquidez\x20acima/abaixo)\x0a3.\x20🕯️\x20Padrões\x20(candles,\x20formações,\x20confluências)\x0a4.\x20⚡\x20Momentum\x20&\x20Fluxo\x20(divergências,\x20força,\x20volume)\x0a5.\x20🧭\x20Veredito\x20(viés\x20+\x20probabilidade\x20estimada\x20+\x20invalidação)';const _0x3c3a66={};_0x3c3a66[_0x588f08(0x24a)]='user',_0x3c3a66[_0x588f08(0x16c)]=[_0x28fe1e,_0x300d92];const _0x369658={};_0x369658['model']='claude-sonnet-4-20250514',_0x369658[_0x588f08(0x15f)]=0x3e8,_0x369658[_0x588f08(0x13f)]=_0x1b8f5b,_0x369658['messages']=[_0x3c3a66];const _0x37f3ea=_0x369658;try{let _0x37552e;if(AI_ENDPOINT==='DIRECT'){if(!window[_0x588f08(0x15c)]){_0x2afeae[_0x588f08(0x27a)]=![],_0x2afeae[_0x588f08(0x1ac)]=_0x588f08(0x19f),showApiKeyModal();return;}const _0x46f322={};_0x46f322[_0x588f08(0x1f8)]=_0x588f08(0x1dd),_0x46f322[_0x588f08(0x1a3)]=window[_0x588f08(0x15c)],_0x46f322[_0x588f08(0x278)]=_0x588f08(0x157),_0x37552e=await fetch(_0x588f08(0x23a),{'method':_0x588f08(0x1a4),'headers':_0x46f322,'body':JSON[_0x588f08(0x225)](_0x37f3ea)});}else{const _0x17ac03={};_0x17ac03['Content-Type']=_0x588f08(0x1dd),_0x37552e=await fetch(AI_ENDPOINT,{'method':_0x588f08(0x1a4),'headers':_0x17ac03,'body':JSON[_0x588f08(0x225)](_0x37f3ea)});}if(!_0x37552e['ok']){let _0x3c0c99=_0x588f08(0x164)+_0x37552e[_0x588f08(0x261)];try{const _0xe1011b=await _0x37552e[_0x588f08(0x21a)]();_0x3c0c99=_0xe1011b?.[_0x588f08(0x1d0)]?.['message']||_0x3c0c99;}catch(_0x3a7b82){}throw new Error(_0x3c0c99);}const _0x2bccdf=await _0x37552e[_0x588f08(0x21a)]();if(_0x2bccdf[_0x588f08(0x1d0)])throw new Error(_0x2bccdf[_0x588f08(0x1d0)][_0x588f08(0x158)]||JSON[_0x588f08(0x225)](_0x2bccdf[_0x588f08(0x1d0)]));const _0x59f830=(_0x2bccdf[_0x588f08(0x16c)]||[])[_0x588f08(0x269)](_0x20a688=>_0x20a688['type']==='text'?_0x20a688[_0x588f08(0x264)]:'')['join']('');if(!_0x59f830)throw new Error(_0x588f08(0x1da));_0x3428fb[_0x588f08(0x25b)]=_0x588f08(0x230),_0x3428fb[_0x588f08(0x1cd)][_0x588f08(0x24e)]='',_0x3428fb[_0x588f08(0x1ac)]=_0x588f08(0x1ec),renderReport(_0x5c2aac,_0x59f830);}catch(_0x597b5a){let _0x368971='';if(_0x597b5a['message']['includes']('Failed\x20to\x20fetch')||_0x597b5a[_0x588f08(0x158)][_0x588f08(0x228)]('NetworkError'))_0x368971=_0x588f08(0x26a);else{if(_0x597b5a[_0x588f08(0x158)]['includes'](_0x588f08(0x240))||_0x597b5a[_0x588f08(0x158)]['includes'](_0x588f08(0x1fb)))_0x368971=_0x588f08(0x22c);else _0x597b5a[_0x588f08(0x158)][_0x588f08(0x228)]('invalid_request_error')&&(_0x368971='Imagem\x20muito\x20grande\x20ou\x20formato\x20não\x20suportado.\x20Tente\x20com\x20PNG\x20menor.');}showAiError(_0x588f08(0x1fd),_0x597b5a[_0x588f08(0x158)],_0x368971);}finally{_0x2afeae['disabled']=![],_0x2afeae['textContent']='⚡\x20Analisar\x20Outro\x20Gráfico';}}function renderReport(_0x2f74f3,_0x291527){const _0x1a6ce4=a0_0x48cd95,_0x4fc221=_0x291527[_0x1a6ce4(0x217)]('\x0a');let _0x4d0aae='',_0x4b09be='',_0x365a4b='';const _0x4a3ad7=()=>{const _0x5ae51a=_0x1a6ce4;if(!_0x4b09be)return;_0x4d0aae+=_0x5ae51a(0x1c2)+_0x4b09be+_0x5ae51a(0x1c6)+_0x365a4b['trim']()+_0x5ae51a(0x1cc),_0x365a4b='',_0x4b09be='';};_0x4fc221[_0x1a6ce4(0x275)](_0x1373c2=>{const _0x3ddfc4=_0x1a6ce4,_0x2f4fc4=_0x1373c2[_0x3ddfc4(0x143)]();if(!_0x2f4fc4){_0x365a4b+='<br>';return;}/^#{1,3}\s/['test'](_0x2f4fc4)||/^\d+\.\s*[🏗🎯🕯⚡🧭]/[_0x3ddfc4(0x19e)](_0x2f4fc4)||/^[🏗🎯🕯⚡🧭]/['test'](_0x2f4fc4)||/^\*\*/[_0x3ddfc4(0x19e)](_0x2f4fc4)&&_0x2f4fc4[_0x3ddfc4(0x1a1)]('**')?(_0x4a3ad7(),_0x4b09be=_0x2f4fc4['replace'](/^#{1,3}\s/,'')[_0x3ddfc4(0x1eb)](/^\d+\.\s*/,'')[_0x3ddfc4(0x1eb)](/\*\*/g,'')):_0x365a4b+=_0x2f4fc4[_0x3ddfc4(0x1eb)](/\*\*(.*?)\*\*/g,_0x3ddfc4(0x210))[_0x3ddfc4(0x1eb)](/^[-•]\s/,_0x3ddfc4(0x1b8))+'\x20';}),_0x4a3ad7();if(!_0x4d0aae)_0x4d0aae=_0x1a6ce4(0x1b5)+_0x291527[_0x1a6ce4(0x1eb)](/\*\*(.*?)\*\*/g,_0x1a6ce4(0x210))[_0x1a6ce4(0x1eb)](/\n/g,'<br>')+_0x1a6ce4(0x1cc);_0x4d0aae+=_0x1a6ce4(0x153),_0x2f74f3[_0x1a6ce4(0x27b)]=_0x4d0aae;}function showApiKeyModal(){const _0x2665b1=a0_0x48cd95,_0x5e1504=document[_0x2665b1(0x260)](_0x2665b1(0x22b));if(_0x5e1504){_0x5e1504[_0x2665b1(0x1cd)][_0x2665b1(0x14b)]=_0x2665b1(0x1ad);return;}const _0x2103ee=document[_0x2665b1(0x22d)]('div');_0x2103ee['id']=_0x2665b1(0x22b),_0x2103ee[_0x2665b1(0x1cd)]['cssText']='position:fixed;inset:0;background:rgba(4,11,18,.85);backdrop-filter:blur(8px);z-index:999;display:flex;align-items:center;justify-content:center',_0x2103ee[_0x2665b1(0x27b)]=_0x2665b1(0x214),document[_0x2665b1(0x224)]['appendChild'](_0x2103ee),setTimeout(()=>document[_0x2665b1(0x260)](_0x2665b1(0x1f7))?.[_0x2665b1(0x180)](),0x64);}function saveApiKey(){const _0x13cc71=a0_0x48cd95,_0x4bb197=document[_0x13cc71(0x260)]('apikeyinput')?.[_0x13cc71(0x280)]?.[_0x13cc71(0x143)]();if(!_0x4bb197||!_0x4bb197[_0x13cc71(0x274)](_0x13cc71(0x237))){alert('Key\x20inválida.\x20Deve\x20começar\x20com\x20\x22sk-\x22.');return;}window[_0x13cc71(0x15c)]=_0x4bb197,document[_0x13cc71(0x260)]('apikeymodal')['style']['display']=_0x13cc71(0x24b),analisarComIA();}const comboWindow={},lastComboAlert={};let comboCounter=0x0;const a0_0x951749={};a0_0x951749[a0_0x48cd95(0x189)]='Smart\x20Money',a0_0x951749[a0_0x48cd95(0x156)]='Triple\x20Crowd',a0_0x951749[a0_0x48cd95(0x14a)]='Inst.\x20Flow',a0_0x951749['whale']=a0_0x48cd95(0x1f5);a0_0x951749['obi']='Book Press.';const SIGNAL_NAMES=a0_0x951749,a0_0x31ead8={};a0_0x31ead8[a0_0x48cd95(0x1e9)]=0x0,a0_0x31ead8[a0_0x48cd95(0x238)]=0x0,a0_0x31ead8[a0_0x48cd95(0x15b)]=0x0;const btcTracker=a0_0x31ead8;function updateBtcBias(_0x3a61fe,_0x1ef07b){const _0x36c176=a0_0x48cd95;btcTracker[_0x36c176(0x1e9)]=_0x3a61fe,btcTracker[_0x36c176(0x15b)]=_0x1ef07b,btcTracker[_0x36c176(0x238)]=Date['now']();const _0x32886a=document['getElementById']('btcBiasLabel');if(!_0x32886a)return;if(_0x3a61fe>0x0)_0x32886a[_0x36c176(0x1ac)]=_0x36c176(0x16f),_0x32886a['style'][_0x36c176(0x277)]=_0x36c176(0x187);else _0x3a61fe<0x0?(_0x32886a[_0x36c176(0x1ac)]='▼\x20VENDA',_0x32886a[_0x36c176(0x1cd)][_0x36c176(0x277)]=_0x36c176(0x188)):(_0x32886a['textContent']='—',_0x32886a['style']['color']=_0x36c176(0x14c));}function getBtcBias(){const _0x3817fd=a0_0x48cd95;if(Date['now']()-btcTracker['lastUpdate']>0x2bf20)return 0x0;return btcTracker[_0x3817fd(0x1e9)];}function getPriceMomentumDir(_0x45b0a5){const _0x229af6=a0_0x48cd95,_0x5f1f9b=coinState[_0x45b0a5];if(!_0x5f1f9b||_0x5f1f9b[_0x229af6(0x19a)][_0x229af6(0x248)]<0x5)return 0x0;const _0x1a4010=_0x5f1f9b[_0x229af6(0x19a)],_0x3dc81c=_0x1a4010['slice'](-0x3)[_0x229af6(0x1ea)]((_0x522579,_0x403fe7)=>_0x522579+_0x403fe7,0x0)/0x3,_0x145ac3=_0x1a4010[_0x229af6(0x1df)](-0x8,-0x5)[_0x229af6(0x1ea)]((_0x2fbce0,_0x14fee3)=>_0x2fbce0+_0x14fee3,0x0)/0x3;if(_0x145ac3===0x0)return 0x0;const _0x51d805=(_0x3dc81c-_0x145ac3)/_0x145ac3*0x64;if(_0x51d805>0.08)return 0x1;if(_0x51d805<-0.08)return-0x1;return 0x0;}function registerComboSignal(_0x194223,_0x2db243,_0x43ff61){const _0xceca71=a0_0x48cd95;if(!comboWindow[_0x194223])comboWindow[_0x194223]={};const _0x458707=Date['now'](),_0x1d39b1={};_0x1d39b1['ts']=_0x458707,_0x1d39b1['dir']=_0x43ff61,comboWindow[_0x194223][_0x2db243]=_0x1d39b1;for(const _0x4b7108 of Object[_0xceca71(0x1fe)](comboWindow[_0x194223])){if(_0x458707-comboWindow[_0x194223][_0x4b7108]['ts']>0xea60)delete comboWindow[_0x194223][_0x4b7108];}if(_0x194223===_0xceca71(0x1d4)){const _0xf1ae2=coinState[_0xceca71(0x1d4)],_0xcdfe7b=_0xf1ae2?_0xf1ae2[_0xceca71(0x19a)]['length']>0x5?(_0xf1ae2['sparkPrices'][_0xceca71(0x1df)](-0x1)[0x0]-_0xf1ae2[_0xceca71(0x19a)][_0xceca71(0x1df)](-0x6,-0x5)[0x0])/_0xf1ae2[_0xceca71(0x19a)][_0xceca71(0x1df)](-0x6,-0x5)[0x0]*0x64:0x0:0x0;updateBtcBias(_0x43ff61,_0xcdfe7b);}const _0x5041f1=Object[_0xceca71(0x21f)](comboWindow[_0x194223]);if(_0x5041f1[_0xceca71(0x248)]<0x4)return;const _0x8b52fd=_0x5041f1[_0xceca71(0x1de)](([,_0x1536e8])=>_0x1536e8['dir']>0x0)[_0xceca71(0x248)],_0x364ade=_0x5041f1['filter'](([,_0x3ca8e8])=>_0x3ca8e8[_0xceca71(0x1c1)]<0x0)[_0xceca71(0x248)];let _0x4c6f78=0x0;if(_0x8b52fd===0x4)_0x4c6f78=0x1;if(_0x364ade===0x4)_0x4c6f78=-0x1;if(_0x4c6f78===0x0)return;if(_0x194223!==_0xceca71(0x1d4)){const _0x57f977=getBtcBias();if(_0x57f977!==0x0&&_0x57f977!==_0x4c6f78)return;}const _0x1834a5=getPriceMomentumDir(_0x194223);if(_0x1834a5!==0x0&&_0x1834a5!==_0x4c6f78)return;if(lastComboAlert[_0x194223]&&_0x458707-lastComboAlert[_0x194223]<0x493e0)return;lastComboAlert[_0x194223]=_0x458707;const _0x563e7b=_0x5041f1[_0xceca71(0x269)](([_0x37ba9f])=>SIGNAL_NAMES[_0x37ba9f]||_0x37ba9f),_0x1f8977=_0x194223!=='btcusdt'?getBtcBias():null;fireComboAlert(_0x194223,_0x4c6f78,_0x563e7b,_0x1f8977,_0x1834a5);}function fireComboAlert(_0x1036c4,_0x43fc48,_0x16169a,_0x1aeb22,_0x4c78f8){const _0x34cb0f=a0_0x48cd95,_0x1f2fc6=_0x1036c4[_0x34cb0f(0x1eb)](_0x34cb0f(0x160),'')[_0x34cb0f(0x216)](),_0xe8b677=_0x43fc48>0x0,_0x498176=_0xe8b677?_0x34cb0f(0x16f):_0x34cb0f(0x206),_0x4eb620=_0xe8b677?_0x34cb0f(0x1fc):'combo-sell';let _0x58be42='';if(_0x1aeb22!==null){if(_0x1aeb22===_0x43fc48)_0x58be42=_0x34cb0f(0x1e4);else{if(_0x1aeb22===0x0)_0x58be42=_0x34cb0f(0x207);}}const _0x42acc6=_0x4c78f8===_0x43fc48?'<span\x20style=\x22color:var(--buy);font-size:9px\x22>✔\x20Preço\x20confirmado</span>':_0x34cb0f(0x197),_0x2f2506=document['getElementById']('noCombo');if(_0x2f2506)_0x2f2506['remove']();comboCounter++;const _0x2f4b13=document[_0x34cb0f(0x22d)](_0x34cb0f(0x144));_0x2f4b13[_0x34cb0f(0x25b)]='combo-item combo-fluxo combo-pulse combo-fluxo-pulse',_0x2f4b13[_0x34cb0f(0x27b)]=_0x34cb0f(0x22f)+new Date()[_0x34cb0f(0x191)]('pt-BR')+'</div>\x0a\x20\x20\x20\x20\x20\x20<div\x20style=\x22display:flex;align-items:center;gap:8px;margin:4px\x200\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<span\x20style=\x22font-size:16px;font-weight:800;color:#ffc832;letter-spacing:1px\x22>⚡ SINAL DE FLUXO</span>\x0a\x20\x20\x20\x20\x20\x20</div>\x0a\x20\x20\x20\x20\x20\x20<div\x20style=\x22font-size:9px;color:rgba(255,200,50,.6);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px\x22>4/4 sinais · aguardando leitura</div>\x0a\x20\x20\x20\x20\x20\x20<div\x20class=\x22combo-detail\x22\x20style=\x22color:rgba(255,255,255,.5)\x22>'+_0x16169a[_0x34cb0f(0x256)](_0x34cb0f(0x1e6))+'</div>\x0a\x20\x20\x20\x20\x20\x20<div\x20style=\x22display:flex;gap:8px;margin-top:3px\x22>'+_0x58be42+(_0x58be42?_0x34cb0f(0x26b):'')+_0x42acc6+'</div>\x0a\x20\x20\x20\x20</div>';const _0x168569=document[_0x34cb0f(0x260)](_0x34cb0f(0x1dc));_0x168569['prepend'](_0x2f4b13);while(_0x168569[_0x34cb0f(0x1bb)][_0x34cb0f(0x248)]>0xc)_0x168569[_0x34cb0f(0x20d)](_0x168569['lastChild']);// Som neutro dourado para Sinal de Fluxo
 playBeep(0x350,'sine',0.08,0.18);
 setTimeout(()=>playBeep(0x380,'sine',0.10,0.20),0x80);
 setTimeout(()=>playBeep(0x3b0,'sine',0.11,0.22),0x100);
@@ -1570,6 +1700,190 @@ function closeDisclaimer(){
   setTimeout(()=>{o.remove();s.remove();},190);
 }
 window.addEventListener('DOMContentLoaded',()=>setTimeout(showDisclaimer,250));
+</script>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+// PAINEL — Market Table + Alerts Table + Quick News
+// Não duplica o motor: reaproveita coinState / updateCard / addAlert
+// / switchTab / drawSparkline / initNewsTab / newsData já existentes.
+// ══════════════════════════════════════════════════════════════
+let painelBuilt = false;
+let painelHooksInstalled = false;
+const PAINEL_ALERTS_LIMIT = 30;
+let painelTotalAlerts = 0;
+
+function fmtMoney(v) {
+  if (v >= 1e6) return '$' + (v / 1e6).toFixed(2) + 'M';
+  if (v >= 1e3) return '$' + (v / 1e3).toFixed(1) + 'K';
+  return '$' + Math.round(v).toLocaleString('pt-BR');
+}
+
+function fmtPrice(p) {
+  if (p < 0.001) return '$' + p.toFixed(6);
+  if (p < 1) return '$' + p.toFixed(4);
+  if (p < 100) return '$' + p.toFixed(3);
+  return '$' + p.toFixed(2);
+}
+
+function buildMarketTable() {
+  const tbody = document.getElementById('marketTableBody');
+  if (!tbody || typeof TOP_COINS === 'undefined') return;
+  tbody.innerHTML = '';
+  TOP_COINS.forEach(coin => {
+    const sym = coin.replace('usdt', '').toUpperCase();
+    const tr = document.createElement('tr');
+    tr.id = 'mrow-' + coin;
+    tr.innerHTML = `
+      <td><div class="mt-instr"><span class="mt-ic-wrap"><img class="mt-ic-img" src="https://assets.coincap.io/assets/icons/${sym.toLowerCase()}@2x.png" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='inline-flex';"><span class="mt-ic" style="display:none">${sym.slice(0, 1)}</span></span>${sym}<span class="mt-pair">/USDT</span></div></td>
+      <td data-mt-price>—</td>
+      <td data-mt-vol>—</td>
+      <td data-mt-change style="color:var(--muted)">—</td>
+      <td><canvas data-mt-spark width="120" height="30" style="display:block"></canvas></td>
+      <td><a class="at-action" href="https://www.binance.com/en/trade/${sym}_USDT" target="_blank" rel="noopener" title="Abrir na Binance">↗</a></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function updateMarketRow(coin, data) {
+  const row = document.getElementById('mrow-' + coin);
+  if (!row) return;
+  const state = coinState[coin];
+  if (!state) return;
+
+  row.querySelector('[data-mt-price]').textContent = fmtPrice(data.price);
+
+  const mom = data.momentum || 0;
+  const changeEl = row.querySelector('[data-mt-change]');
+  changeEl.textContent = (mom >= 0 ? '+' : '') + mom.toFixed(2) + '%';
+  changeEl.style.color = mom > 0 ? 'var(--buy)' : mom < 0 ? 'var(--sell)' : 'var(--muted)';
+
+  const cutoff = Date.now() - 5 * 60 * 1000;
+  const vols = (state.volumes || []).filter(v => v.time > cutoff);
+  const totalVol = vols.reduce((s, v) => s + (v.value || 0), 0);
+  row.querySelector('[data-mt-vol]').textContent = totalVol > 0 ? fmtMoney(totalVol) : '—';
+
+  const spark = state.sparkPrices;
+  if (spark && spark.length > 1 && typeof drawSparkline === 'function') {
+    drawSparkline(row.querySelector('[data-mt-spark]'), spark, mom >= 0 ? '#00e676' : '#ff3158');
+  }
+}
+
+const ALERT_TYPE_LABEL = {
+  whale: 'VOLUME ALERT', buy: 'SEMANTIC ALERT', sell: 'SEMANTIC ALERT',
+  zanom: 'VOLUME ALERT', tri: 'SEMANTIC ALERT', '': 'SEMANTIC ALERT',
+};
+const ALERT_STATUS = {
+  whale: 'neutral', buy: 'bullish', sell: 'bearish', zanom: 'neutral', tri: 'neutral', '': 'neutral',
+};
+
+function addAlertRow(msgHtml, type) {
+  const tbody = document.getElementById('painelAlertsBody');
+  if (!tbody) return;
+  const emptyRow = document.getElementById('painelAlertsEmpty');
+  if (emptyRow) emptyRow.remove();
+
+  const plain = msgHtml.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  const typeLabel = ALERT_TYPE_LABEL[type] ?? 'SEMANTIC ALERT';
+  const status = ALERT_STATUS[type] ?? 'neutral';
+  const statusLabel = status === 'bullish' ? 'BULLISH' : status === 'bearish' ? 'BEARISH' : '—';
+  const time = new Date().toLocaleTimeString('pt-BR');
+
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td class="at-type">${typeLabel}</td>
+    <td style="max-width:420px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${plain}</td>
+    <td style="color:var(--muted)">${time}</td>
+    <td><span class="status-pill ${status}">${statusLabel}</span></td>`;
+  tbody.prepend(tr);
+
+  document.getElementById('painelAlertCount').textContent = ++painelTotalAlerts;
+  while (tbody.children.length > PAINEL_ALERTS_LIMIT) tbody.removeChild(tbody.lastChild);
+}
+
+function categoryToPill(cat) {
+  if (cat === 'bullish') return 'bullish';
+  if (cat === 'bearish') return 'bearish';
+  if (cat === 'warning') return 'warning';
+  return 'neutral';
+}
+
+function renderPainelNews() {
+  const wrap = document.getElementById('painelNews');
+  if (!wrap) return;
+  if (typeof newsData === 'undefined' || !newsData.length) {
+    wrap.innerHTML = '<div class="pn-empty">Carregando notícias...</div>';
+    return;
+  }
+  wrap.innerHTML = '';
+  newsData.slice(0, 25).forEach(n => {
+    const div = document.createElement('div');
+    div.className = 'pn-item';
+    const pill = categoryToPill(n.category);
+    const pillLabel = pill === 'bullish' ? 'otimista' : pill === 'bearish' ? 'pessimista' : pill === 'warning' ? 'alerta' : 'neutro';
+    div.innerHTML = `
+      <div class="pn-head">${n.headline}</div>
+      <div class="pn-meta">
+        <span class="pn-src">${n.source} · ${n.time}</span>
+        <span class="pn-pill ${pill}">${pillLabel}</span>
+      </div>`;
+    if (n.url) div.onclick = () => window.open(n.url, '_blank', 'noopener');
+    wrap.appendChild(div);
+  });
+  const counter = document.getElementById('painelNewsCount');
+  if (counter) counter.textContent = newsData.length;
+}
+
+function installPainelHooks() {
+  if (painelHooksInstalled) return;
+  painelHooksInstalled = true;
+
+  const _origUpdateCard = window.updateCard;
+  window.updateCard = function (coin, data) {
+    // Motor continua calculando tudo — só pula a renderização pesada dos cards
+    // do Radar que não existem mais na UI.
+    updateMarketRow(coin, data);
+  };
+
+  const _origAddAlert = window.addAlert;
+  window.addAlert = function (msgHtml, type) {
+    _origAddAlert(msgHtml, type);
+    addAlertRow(msgHtml, type);
+  };
+
+  if (typeof window.renderNews === 'function') {
+    const _origRenderNews = window.renderNews;
+    window.renderNews = function (...args) {
+      _origRenderNews(...args);
+      renderPainelNews();
+    };
+  }
+}
+
+function initPainelTab() {
+  installPainelHooks();
+  if (!painelBuilt) {
+    painelBuilt = true;
+    buildMarketTable();
+  }
+  if (typeof initNewsTab === 'function') initNewsTab();
+  renderPainelNews();
+  if (!window._painelNewsInterval) {
+    window._painelNewsInterval = setInterval(renderPainelNews, 60000);
+  }
+}
+
+// Hooka o switchTab original sem alterar o motor existente
+const _origSwitchTab = window.switchTab;
+window.switchTab = function (name, btn) {
+  _origSwitchTab(name, btn);
+  if (name === 'painel') initPainelTab();
+  if (name === 'bitnews') initNewsTab();
+};
+
+// Painel agora é a aba padrão ao abrir a página — inicializa direto,
+// sem esperar o usuário clicar na aba.
+initPainelTab();
 </script>
 </body>
 </html>
