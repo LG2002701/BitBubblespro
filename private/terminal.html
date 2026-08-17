@@ -17,7 +17,9 @@
       --glow-hot:rgba(255,23,68,0.18); --glow-warm:rgba(255,145,0,0.12);
     }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{max-width:100%;overflow-x:hidden}
     body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100vh;display:flex;flex-direction:column;
+      max-width:100%;overflow-x:hidden;
       background-image:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,200,255,0.011) 2px,rgba(0,200,255,0.011) 4px)}
 
     .navbar{background:rgba(6,14,24,0.97);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);
@@ -486,6 +488,42 @@
     .at-action{color:var(--muted);text-decoration:none}
     .at-action:hover{color:var(--accent)}
     .pm-empty-row td{color:var(--muted);text-align:center;padding:18px 0}
+
+    /* ══ PAINEL — TABELAS (Alerts / Market Coins) — REFLOW MOBILE ≤768px ══
+       Em telas estreitas as linhas da tabela viram "cards" empilhados
+       (rótulo + valor), então nada fica cortado nem precisa de scroll
+       horizontal escondido. Acima de 768px o layout de tabela normal
+       continua exatamente igual. */
+    @media(max-width:768px){
+      .panel-box{overflow-x:visible}
+      .data-table{white-space:normal}
+      .data-table thead{display:none}
+      .data-table,.data-table tbody,.data-table tr,.data-table td{display:block;width:100%}
+      .data-table tr{background:var(--bg-panel);border:1px solid var(--border);border-radius:10px;
+        padding:10px 12px;margin-bottom:8px}
+      .data-table tr:last-child{margin-bottom:0}
+      .data-table td{border-bottom:none;padding:4px 0;white-space:normal;font-size:12px;
+        display:flex;justify-content:space-between;align-items:center;gap:10px}
+      .data-table td[data-label]::before{content:attr(data-label);color:var(--muted);font-size:9px;
+        font-weight:600;letter-spacing:1px;text-transform:uppercase;flex-shrink:0}
+
+      /* cabeçalho do card (moeda) — sem rótulo, com separador */
+      .data-table td.mt-cell-instr{padding-bottom:9px;margin-bottom:6px;border-bottom:1px solid var(--border)}
+      .data-table td.mt-cell-instr::before{content:none}
+      .data-table td.mt-cell-instr .mt-instr{font-size:14px}
+
+      /* descrição do alerta — quebra linha em vez de cortar com "..." */
+      .data-table td.at-desc{display:block;max-width:none!important;overflow:visible!important;
+        text-overflow:clip!important;white-space:normal!important;line-height:1.5}
+      .data-table td.at-desc::before{display:block;margin-bottom:3px}
+
+      /* gráfico de preço — largura total, abaixo do rótulo */
+      .data-table td.mt-cell-spark{display:block}
+      .data-table td.mt-cell-spark::before{display:block;margin-bottom:4px}
+      .data-table td.mt-cell-spark canvas{width:100%!important}
+
+      .pm-empty-row td{display:block!important;text-align:center}
+    }
 
     /* ═══ RISK DISCLAIMER MODAL ═══ */
     #riskDisclaimerOverlay{position:fixed;inset:0;background:rgba(4,11,18,.92);backdrop-filter:blur(10px);
@@ -1735,12 +1773,12 @@ function buildMarketTable() {
     const tr = document.createElement('tr');
     tr.id = 'mrow-' + coin;
     tr.innerHTML = `
-      <td><div class="mt-instr"><span class="mt-ic-wrap"><img class="mt-ic-img" src="https://assets.coincap.io/assets/icons/${sym.toLowerCase()}@2x.png" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='inline-flex';"><span class="mt-ic" style="display:none">${sym.slice(0, 1)}</span></span>${sym}<span class="mt-pair">/USDT</span></div></td>
-      <td data-mt-price>—</td>
-      <td data-mt-vol>—</td>
-      <td data-mt-change style="color:var(--muted)">—</td>
-      <td><canvas data-mt-spark width="120" height="30" style="display:block"></canvas></td>
-      <td><a class="at-action" href="https://www.binance.com/en/trade/${sym}_USDT" target="_blank" rel="noopener" title="Abrir na Binance">↗</a></td>`;
+      <td class="mt-cell-instr" data-label="Instrument"><div class="mt-instr"><span class="mt-ic-wrap"><img class="mt-ic-img" src="https://assets.coincap.io/assets/icons/${sym.toLowerCase()}@2x.png" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='inline-flex';"><span class="mt-ic" style="display:none">${sym.slice(0, 1)}</span></span>${sym}<span class="mt-pair">/USDT</span></div></td>
+      <td data-mt-price data-label="Price">—</td>
+      <td data-mt-vol data-label="Volume (5m)">—</td>
+      <td data-mt-change data-label="Change" style="color:var(--muted)">—</td>
+      <td class="mt-cell-spark" data-label="Price Graph"><canvas data-mt-spark width="120" height="30" style="display:block"></canvas></td>
+      <td data-label="Action"><a class="at-action" href="https://www.binance.com/en/trade/${sym}_USDT" target="_blank" rel="noopener" title="Abrir na Binance">↗</a></td>`;
     tbody.appendChild(tr);
   });
 }
@@ -1791,10 +1829,10 @@ function addAlertRow(msgHtml, type) {
 
   const tr = document.createElement('tr');
   tr.innerHTML = `
-    <td class="at-type">${typeLabel}</td>
-    <td style="max-width:420px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${plain}</td>
-    <td style="color:var(--muted)">${time}</td>
-    <td><span class="status-pill ${status}">${statusLabel}</span></td>`;
+    <td class="at-type" data-label="Type">${typeLabel}</td>
+    <td class="at-desc" data-label="Alert Description" style="max-width:420px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${plain}</td>
+    <td data-label="Time" style="color:var(--muted)">${time}</td>
+    <td data-label="Status"><span class="status-pill ${status}">${statusLabel}</span></td>`;
   tbody.prepend(tr);
 
   document.getElementById('painelAlertCount').textContent = ++painelTotalAlerts;
